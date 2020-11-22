@@ -14,17 +14,34 @@ We use R v3.6.2. Although it should not be limited to this R version, but all of
 Needed R packages are:
 * data.table (most of the data in the scripts are processed by functions of data.table. Well, I like data.table!)
 * rjags (for communicating with JAGS software)
-* RColorBrewer (for plotting the result)
 * minpack.lm (it provides functions for non-linear least square fit)
+* RColorBrewer (for plotting the result)
+* viridis (for plotting the result)
 
 ### JAGS
 We use JAGS v4.3.0. Again, it should not be limited to this JAGS version, but all of the scripts were tested under v4.3.0.
 Users can download and install JAGS from this webpage. To use our scripts, there's no need to know how to use JAGS, actually after installation, users don't even need to open JAGS, we'll use R code to communitate with it.
 
-## Test data
-We provide test data in the repository for users to quickly test their development environment as well as the Bayesian model. The test data is a cached R dataset file named "test_ts.Rds". It contains a Landsat EVI2 time series with columns including date and EVI2 value. 
-
 ## Run the model
+
+There are 3 files in the respository's `Code` folder:
+* base.R
+* Bayesian_LSP_fit.R
+* test_ts.Rds
+
+`base.R` contains the needed libraries and pre-defined functions, it'll be sourced in `Bayesian_LSP_fit.R`, which runs the model.
+
+`test_ts.Rds` is a cached R dataset file. It contains a Landsat EVI2 time series with columns including date and EVI2 value. Users can use the test data to quickly run the Bayesian model.
+
+`Bayesian_LSP_fit.R` is easy to understand and run. The only thing need to do before running the script is changing the working directory specified in `setwd()` function, make sure the script can find the `base.R` file and `test_ts.Rds` file. After running the script, there will be a plot showing the result of LSP fit and a table that contains all retreived phenometrics. 
+
+Detail information about the model can be found in the paper. 
+
+Program result:
+
+![](img/model_fit_plot.png)
+
+![](img/model_fit_phenos.png)
 
 
 
