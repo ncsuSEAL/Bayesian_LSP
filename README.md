@@ -37,11 +37,13 @@ There are 3 files in the respository's `Code` folder:
 
 Detail information about the model can be found in the paper. 
 
-Program result:
+Program result - Model fit:
 
 ![](img/model_fit_plot.png)
 
-![](img/model_fit_phenos.png)
+Program result - Retrieved phenos:
+
+<img src="img/model_fit_phenos.png" alt="" width="500"/>
 
 
 
