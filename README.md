@@ -1,6 +1,11 @@
 # Bayesian_LSP
 A Bayesian hierarchical model that quantifies long-term annual land surface phenology from sparse 30 m Landsat time series (well, it doesn't have to be Landsat).
 
+More details about the model please read the paper: xxxx. 
+
+And the citation to this work is:
+> Gao, X., Gray, J., Reich, B.(2021). Quantifying xxxx.
+
 ## Installation
 The scripts are written in R programming language and use JAGS software to conduct the MCMC sampling for the Bayesian model. To run the scripts, users should install R along with some packages and JAGS. 
 
@@ -19,7 +24,7 @@ Users can download and install JAGS from this webpage. To use our scripts, there
 ## Test data
 We provide test data in the repository for users to quickly test their development environment as well as the Bayesian model. The test data is a cached R dataset file named "test_ts.Rds". It contains a Landsat EVI2 time series with columns including date and EVI2 value. 
 
-## To run the model
+## Run the model
 
 
 
