@@ -19,6 +19,8 @@ Needed R packages are:
 * viridis (for plotting the result)
 
 ### JAGS
+See the website: http://mcmc-jags.sourceforge.net/
+
 We use JAGS v4.3.0. Again, it should not be limited to this JAGS version, but all of the scripts were tested under v4.3.0.
 Users can download and install JAGS from this webpage. To use our scripts, there's no need to know how to use JAGS, actually after installation, users don't even need to open JAGS, we'll use R code to communitate with it.
 
