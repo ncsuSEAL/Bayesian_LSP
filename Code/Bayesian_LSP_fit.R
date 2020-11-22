@@ -5,7 +5,7 @@ setwd("/Git/Bayesian_LSP/Code")
 source("base.R")
 
 
-# First, need to load the Landsat time series. I extracted the time series on Google Earth Engine, and I cached the them into *.Rds format files for fast loading.
+# First, need to load the Landsat time series
 landsat <- readRDS("test_ts.Rds")
 
 # We can plot the time series
