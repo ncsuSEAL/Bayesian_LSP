@@ -4,7 +4,8 @@ A Bayesian hierarchical model that quantifies long-term annual land surface phen
 More details about the model please read the paper: xxxx. 
 
 And the citation to this work is:
-> Gao, X., Gray, J., Reich, B.(2021). Quantifying xxxx.
+> Gao, X., Gray, J. M., & Reich, B. J. (2021). Long-term, medium spatial resolution annual land surface phenology with a Bayesian hierarchical model. Remote Sensing of Environment, 261, 112484. https://doi.org/10.1016/j.rse.2021.112484
+
 
 ## Installation
 The scripts are written in R programming language and use JAGS software to conduct the MCMC sampling for the Bayesian model. To run the scripts, users should install R along with some packages and JAGS. 
