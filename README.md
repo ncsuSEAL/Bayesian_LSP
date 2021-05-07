@@ -1,7 +1,7 @@
 # Bayesian_LSP
 A Bayesian hierarchical model that quantifies long-term annual land surface phenology from sparse 30 m Landsat time series (well, it doesn't have to be Landsat).
 
-More details about the model please read the paper: xxxx. 
+More details about the model please read the paper: [Long-term, medium spatial resolution annual land surface phenology with a Bayesian hierarchical model](https://doi.org/10.1016/j.rse.2021.112484)
 
 And the citation to this work is:
 > Gao, X., Gray, J. M., & Reich, B. J. (2021). Long-term, medium spatial resolution annual land surface phenology with a Bayesian hierarchical model. Remote Sensing of Environment, 261, 112484. https://doi.org/10.1016/j.rse.2021.112484
