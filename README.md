@@ -1,5 +1,5 @@
 # Bayesian_LSP
-A Bayesian hierarchical model that quantifies long-term annual land surface phenology from sparse 30 m Landsat time series (well, it doesn't have to be Landsat).
+A Bayesian hierarchical model that quantifies long-term annual land surface phenology from temporally sparse 30 m Landsat time series (well, it doesn't have to be Landsat).
 
 More details about the model please read the paper: [Long-term, medium spatial resolution annual land surface phenology with a Bayesian hierarchical model](https://doi.org/10.1016/j.rse.2021.112484)
 
@@ -12,7 +12,7 @@ The scripts are written in R programming language and use JAGS software to condu
 
 ### R 
 We use R v3.6.2. Although it should not be limited to this R version, but all of the scripts were tested under v3.6.2. 
-Needed R packages are:
+Required R packages are:
 * data.table (most of the data in the scripts are processed by functions of data.table. Well, I like data.table!)
 * rjags (for communicating with JAGS software)
 * minpack.lm (it provides functions for non-linear least square fit)
