@@ -47,8 +47,8 @@ FitBayesianModel <- function(model_str, landsat, initValues = NULL, ifplot = FAL
     yr <- year(landsat$date) - year(landsat$date)[1] + 1 # year id vector
     numYears <- length(unique(yr))
 
-    wgt <- rep(1, n)
-    wgt[landsat$snow == TRUE] <- 1
+    # wgt <- rep(1, n)
+    # wgt[landsat$snow == TRUE] <- 1
 
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
