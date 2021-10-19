@@ -1,6 +1,6 @@
 
 #! Set working directory
-setwd("/Git/Bayesian_LSP/Code")
+setwd("../Bayesian_LSP/Code")
 
 source("base.R")
 
@@ -45,7 +45,7 @@ if (is.null(model_init)) model_init <- NULL
 
 # Now, we can fit the Bayesian model and plot it out. 
 # The code line below would take ~5 min to run (1 min for the model, 4 min for the plot).
-bf_fit <- FitBayesianModel(model_str, landsat, initValues = model_init, ifplot = TRUE)
+bf_fit <- FitBayesianModel(model_str, landsat, initValues = model_init, ifplot = FALSE)
 
 # The retrieved phenometrics and their 95% credible intervals are:
 colnames(bf_fit$phenos) <- c("Id", "Year", "SOS_lower", "SOS", "SOS_upper", "EOS_lower", "EOS", "EOS_upper")
