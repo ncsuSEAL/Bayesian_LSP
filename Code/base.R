@@ -114,16 +114,22 @@ FitBayesianModel <- function(model_str, landsat, initValues = NULL, ifplot = FAL
         m4 = rep(p_m4, numYears), m5 = rep(p_m5, numYears), m6 = rep(p_m6, numYears)
     )
 
-    model <- jags.model(textConnection(model_string), data = data, inits = inits, n.chains = 2, quiet = TRUE)
+    model <- jags.model(textConnection(model_string), data = data, inits = inits, n.chains = 3, quiet = TRUE)
     tryCatch(
         {
             update(model, 2000, progress.bar = "none")
-            samp <- coda.samples(model,
-                variable.names = c("m1", "m2", "m3", "m4", "m5", "m6", "m7"),
-                n.iter = 5000,
-                thin = 10,
-                progress.bar = "none"
-            )
+            iteration_times <- 0
+            repeat {
+                samp <- coda.samples(model,
+                    variable.names = c("m1", "m2", "m3", "m4", "m5", "m6", "m7"),
+                    n.iter = 5000,
+                    thin = 10,
+                    progress.bar = "none"
+                )
+                iteration_times <- iteration_times + 5000
+                if(gelman.diag(samp)$mpsrf <= 1.3) break
+            }
+            print(iteration_times)
         },
         error = function(e) {
             years <- sort(unique(year(landsat$date)))
