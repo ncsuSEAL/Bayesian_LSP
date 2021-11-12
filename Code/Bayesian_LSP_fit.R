@@ -45,9 +45,14 @@ if (is.null(model_init)) model_init <- NULL
 
 # Now, we can fit the Bayesian model and plot it out. 
 # The code line below would take ~5 min to run (1 min for the model, 4 min for the plot).
-bf_fit <- FitBayesianModel(model_str, landsat, initValues = model_init, ifplot = FALSE)
+bf_fit <- FitBLSP(
+    date_vec = landsat$date, 
+    vi_vec = landsat$all_evi, 
+    weights_vec = ifelse(landsat$snow == TRUE, 0.1, 1), 
+    initValues = model_init, 
+    ifplot = TRUE)
 
 # The retrieved phenometrics and their 95% credible intervals are:
-colnames(bf_fit$phenos) <- c("Id", "Year", "SOS_lower", "SOS", "SOS_upper", "EOS_lower", "EOS", "EOS_upper")
+colnames(bf_fit$phenos) <- c("Year", "SOS_lower", "SOS", "SOS_upper", "EOS_lower", "EOS", "EOS_upper")
 apply(bf_fit$phenos, 2, as.integer)
 
