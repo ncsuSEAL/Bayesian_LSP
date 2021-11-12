@@ -8,7 +8,7 @@ And the citation to this work is:
 
 
 ## Note:
-We are currently improving the computing speed of the BLSP algorithm, thanks to Matt Shisler and Dr. Brian Reich's help. Be sure to watch or star this repo to keep up with our updates.
+We are currently (11/12/2021) improving the computing speed of the BLSP algorithm, thanks to Matt Shisler and Dr. Brian Reich's help. Be sure to watch or star this repo to keep up with our updates.
 
 
 ## Installation
