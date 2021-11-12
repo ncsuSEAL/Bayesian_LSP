@@ -1,10 +1,14 @@
-# Bayesian_LSP
+# Bayesian land surface phenology (BLSP) model
 A Bayesian hierarchical model that quantifies long-term annual land surface phenology from temporally sparse 30 m Landsat time series (well, it doesn't have to be Landsat).
 
 More details about the model please read the paper: [Long-term, medium spatial resolution annual land surface phenology with a Bayesian hierarchical model](https://doi.org/10.1016/j.rse.2021.112484)
 
 And the citation to this work is:
 > Gao, X., Gray, J. M., & Reich, B. J. (2021). Long-term, medium spatial resolution annual land surface phenology with a Bayesian hierarchical model. Remote Sensing of Environment, 261, 112484. https://doi.org/10.1016/j.rse.2021.112484
+
+
+## Note:
+We are currently improving the computing speed of the BLSP algorithm, thanks to Matt Shisler and Dr. Brian Reich's help. Be sure to watch or star this repo to keep up with our updates.
 
 
 ## Installation
@@ -18,6 +22,7 @@ Required R packages are:
 * minpack.lm (it provides functions for non-linear least square fit)
 * RColorBrewer (for plotting the result)
 * viridis (for plotting the result)
+* lubridate (for easy parsing date strings)
 
 ### JAGS
 See the website: http://mcmc-jags.sourceforge.net/
