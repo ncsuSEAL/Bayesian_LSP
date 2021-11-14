@@ -39,7 +39,7 @@ landsat <- readRDS("test_ts.Rds")
 # This is not a requirement and the initial values would have little impact on the final parameter values, 
 #   but good initial values can reduce the computational time needed for MCMC. 
 
-model_init <- FitAvgModel(landsat, model_str, ifplot = TRUE)
+model_init <- FitAvgModel(landsat$date, landsat$all_evi, ifplot = TRUE)
 if (is.null(model_init)) model_init <- NULL
 
 

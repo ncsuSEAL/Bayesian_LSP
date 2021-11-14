@@ -328,11 +328,15 @@ GetPhenosIdx <- function(equation, params, t) {
 
 
 #' Fit the averaged model and get the model parameters
-#' @param landsat: landsat time series
-#' @param model_str: the model function string, here we use the 7-parameter double-logistic function defined in 'base.R'
+#' @param date_vec: the date vector, be sure to convert the vector to "Date" format or use "yyyy-mm-dd" format string.
+#' @vi_vec: The vegetation index vector.
 #' @param ifplot: logical. Plot the model fit if TRUE.
-FitAvgModel <- function(landsat, model_str, ifplot = FALSE) {
-    vi_dt <- data.table(date = as.Date(landsat$date), evi = landsat$all_evi)
+FitAvgModel <- function(date_vec, vi_vec, ifplot = FALSE) {
+    # check if date_vec is in Date format
+    if (sum(!is.na(parse_date_time(date_vec, orders = "ymd"))) != length(date_vec)) {
+        stop("There're invalid Date values in the `date_vec`! Be sure to use `yyyy-mm-dd` format.")
+    }
+    vi_dt <- data.table(date = as.Date(date_vec), evi = vi_vec)
     vi_dt <- na.omit(vi_dt)
     vi_dt <- setorder(vi_dt, date)
 
@@ -367,6 +371,7 @@ FitAvgModel <- function(landsat, model_str, ifplot = FALSE) {
     # wgt[merge_dt$snow == TRUE] <- 0.5
 
     # Fit model to get the prior
+    model_str <- "m1 + (m2 - m7 * t) * ((1 / (1 + exp((m3 - t) / m4))) - (1 / (1 + exp((m5 - t) / m6))))"
     avg_fit <- tryCatch(
         {
             model_equ <- as.formula(paste("VI", "~", model_str))
