@@ -17,12 +17,12 @@ The scripts are written in R programming language and use JAGS software to condu
 ### R 
 We use R v3.6.2. Although it should not be limited to this R version, but all of the scripts were tested under v3.6.2. 
 Required R packages are:
-* data.table (most of the data in the scripts are processed by functions of data.table. Well, I like data.table!)
-* rjags (for communicating with JAGS software)
-* minpack.lm (it provides functions for non-linear least square fit)
-* RColorBrewer (for plotting the result)
-* viridis (for plotting the result)
-* lubridate (for easy parsing date strings)
+* `data.table` - most of the data in the scripts are processed by functions of data.table. Well, I like data.table!
+* `rjags` - for communicating with JAGS software.
+* `minpack.lm` - it provides functions for non-linear least square fit.
+* `RColorBrewer` - for plotting the result.
+* `viridis` - for plotting the result.
+* `lubridate` - for easy parsing date strings.
 
 ### JAGS
 See the website: http://mcmc-jags.sourceforge.net/
