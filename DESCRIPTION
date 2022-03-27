@@ -1,0 +1,18 @@
+Package: blsp
+Title: A Bayesian land surface phenology model
+Version: 0.0.0.9000
+Authors@R: 
+    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: Acquires Landsat and Sentinel-2 surface reflectance time series data and 
+    applies the Bayesian land surface phenology model developed in Gao et al., 2021.
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+
+Depends:
+    R (>= 3.6)
+Imports:
+    

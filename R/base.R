@@ -14,13 +14,17 @@ library(lubridate)
 
 
 # The double-logistic model
-model_str <- "m1 + (m2 - m7 * t) * ((1 / (1 + exp((m3 - t) / m4))) - (1 / (1 + exp((m5 - t) / m6))))"
+model_str <- "m1 + (m2 - m7 * t) * ((1 / (1 + exp((m3 - t) / m4))) - 
+    (1 / (1 + exp((m5 - t) / m6))))"
 
 #' Make a standard color transparent.
-#' This function is borrowed from 'yarrr' package, but I changed the trans.val to use alpha value directly.
-#' @param orig.col: the original color, can be a color name, a hexadecimal code, or a rgb vector.
+#' This function is borrowed from 'yarrr' package, but I changed the trans.val 
+#' to use alpha value directly.
+#' @param orig.col: the original color, can be a color name, a hexadecimal code, 
+#' or a rgb vector.
 #' @param alpha: define the transparent level.
-#' @param maxColorValue: used to convert the color to rgb format before making it transparent.
+#' @param maxColorValue: used to convert the color to rgb format before making 
+#' it transparent.
 #' @return color code.
 #' @example: color <- Transparent("red", 0.5)
 Transparent <- function(orig.col, alpha = 1, maxColorValue = 255) {
@@ -38,11 +42,15 @@ Transparent <- function(orig.col, alpha = 1, maxColorValue = 255) {
 
 
 #' Bayesian mixed hierarchical land surface phenology model
-#' @date_vec: the date vector, be sure to convert the vector to "Date" format or use "yyyy-mm-dd" format string.
+#' @date_vec: the date vector, be sure to convert the vector to "Date" format or use 
+#' "yyyy-mm-dd" format string.
 #' @vi_vec: The vegetation index vector.
-#' @weights_vec: For specifying weights to observations. For example, lower weights can be set to observations with snow. 
-#' @initValues: initial values for MCMC sampling. We get these values from fitting the averaged model. It could also be NULL.
-#' @param ifplot: logical. Plot the model fit if TRUE. Note that the fitted curve with CI will only be returned when `ifplot` is TRUE.
+#' @weights_vec: For specifying weights to observations. For example, lower weights 
+#' can be set to observations with snow. 
+#' @initValues: initial values for MCMC sampling. We get these values from fitting 
+#' the averaged model. It could also be NULL.
+#' @param ifplot: logical. Plot the model fit if TRUE. Note that the fitted curve 
+#' with CI will only be returned when `ifplot` is TRUE.
 #' @return retrieved phenometrics for each year.
 FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL, ifplot = FALSE) {
     # check if date_vec is in Date format
@@ -67,7 +75,9 @@ FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL, ifp
         # Likelihood
         for (i in 1:n) {
             Y[i] ~ dnorm(mu[i], tau_y)
-            mu[i] <- weights[i] * (m1[yr[i]] + (m2[yr[i]] - m7[yr[i]] * t[i]) * ((1 / (1 + exp((m3[yr[i]] - t[i]) / m4[yr[i]]))) - (1 / (1 + exp((m5[yr[i]] - t[i]) / m6[yr[i]])))))
+            mu[i] <- weights[i] * (m1[yr[i]] + (m2[yr[i]] - m7[yr[i]] * t[i]) * 
+                ((1 / (1 + exp((m3[yr[i]] - t[i]) / m4[yr[i]]))) - 
+                (1 / (1 + exp((m5[yr[i]] - t[i]) / m6[yr[i]])))))
         }
     
         # Priors
