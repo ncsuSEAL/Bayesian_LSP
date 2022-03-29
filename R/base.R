@@ -1,8 +1,7 @@
-#************************************************************************
+#************************************************************************************
 # Description: Needed library and pre-defined functions
-# Author: Xiaojie Gao
 # Date: 2020-11-22
-#************************************************************************
+#************************************************************************************
 
 library(rjags)
 library(data.table)
@@ -52,10 +51,12 @@ Transparent <- function(orig.col, alpha = 1, maxColorValue = 255) {
 #' @param ifplot: logical. Plot the model fit if TRUE. Note that the fitted curve 
 #' with CI will only be returned when `ifplot` is TRUE.
 #' @return retrieved phenometrics for each year.
-FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL, ifplot = FALSE) {
+FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL, 
+    ifplot = FALSE) {
     # check if date_vec is in Date format
     if (sum(!is.na(parse_date_time(date_vec, orders = "ymd"))) != length(date_vec)) {
-        stop("There're invalid Date values in the `date_vec`! Be sure to use `yyyy-mm-dd` format.")
+        stop("There're invalid Date values in the `date_vec`! 
+            Be sure to use `yyyy-mm-dd` format.")
     }
     
     # convert data to jags format
@@ -133,7 +134,8 @@ FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL, ifp
         m4 = rep(p_m4, numYears), m5 = rep(p_m5, numYears), m6 = rep(p_m6, numYears)
     )
 
-    model <- jags.model(textConnection(model_string), data = data, inits = inits, n.chains = 3, quiet = TRUE)
+    model <- jags.model(textConnection(model_string), data = data, inits = inits, 
+        n.chains = 3, quiet = TRUE)
     tryCatch(
         {
             update(model, 2000, progress.bar = "none")
@@ -170,13 +172,20 @@ FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL, ifp
     # ~~~~~~~~~~~~~~~~~
     m1 <- m2 <- m3 <- m4 <- m5 <- m6 <- m7 <- NULL
     for (i in 1:numYears) {
-        m1 <- cbind(m1, c(samp[[1]][, paste0("m1", "[", i, "]")], samp[[2]][, paste0("m1", "[", i, "]")]))
-        m2 <- cbind(m2, c(samp[[1]][, paste0("m2", "[", i, "]")], samp[[2]][, paste0("m2", "[", i, "]")]))
-        m3 <- cbind(m3, c(samp[[1]][, paste0("m3", "[", i, "]")], samp[[2]][, paste0("m3", "[", i, "]")]))
-        m4 <- cbind(m4, c(samp[[1]][, paste0("m4", "[", i, "]")], samp[[2]][, paste0("m4", "[", i, "]")]))
-        m5 <- cbind(m5, c(samp[[1]][, paste0("m5", "[", i, "]")], samp[[2]][, paste0("m5", "[", i, "]")]))
-        m6 <- cbind(m6, c(samp[[1]][, paste0("m6", "[", i, "]")], samp[[2]][, paste0("m6", "[", i, "]")]))
-        m7 <- cbind(m7, c(samp[[1]][, paste0("m7", "[", i, "]")], samp[[2]][, paste0("m7", "[", i, "]")]))
+        m1 <- cbind(m1, c(samp[[1]][, paste0("m1", "[", i, "]")], 
+            samp[[2]][, paste0("m1", "[", i, "]")]))
+        m2 <- cbind(m2, c(samp[[1]][, paste0("m2", "[", i, "]")], 
+            samp[[2]][, paste0("m2", "[", i, "]")]))
+        m3 <- cbind(m3, c(samp[[1]][, paste0("m3", "[", i, "]")], 
+            samp[[2]][, paste0("m3", "[", i, "]")]))
+        m4 <- cbind(m4, c(samp[[1]][, paste0("m4", "[", i, "]")], 
+            samp[[2]][, paste0("m4", "[", i, "]")]))
+        m5 <- cbind(m5, c(samp[[1]][, paste0("m5", "[", i, "]")], 
+            samp[[2]][, paste0("m5", "[", i, "]")]))
+        m6 <- cbind(m6, c(samp[[1]][, paste0("m6", "[", i, "]")], 
+            samp[[2]][, paste0("m6", "[", i, "]")]))
+        m7 <- cbind(m7, c(samp[[1]][, paste0("m7", "[", i, "]")], 
+            samp[[2]][, paste0("m7", "[", i, "]")]))
     }
 
     m1_quan <- data.table(apply(m1, 2, quantile, c(0.05, 0.5, 0.95)))
@@ -190,8 +199,10 @@ FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL, ifp
         if (m2_quan[2, ][[i]] > 0.4) { # suppress some amplitude-too-low year
             bf_phenos <- rbind(bf_phenos, list(
                 Year = years[i],
-                midgup_lower = m3_quan[1, ][[i]], midgup = m3_quan[2, ][[i]], midgup_upper = m3_quan[3, ][[i]],
-                midgdown_lower = m5_quan[1, ][[i]], midgdown = m5_quan[2, ][[i]], midgdown_upper = m5_quan[3, ][[i]]
+                midgup_lower = m3_quan[1, ][[i]], midgup = m3_quan[2, ][[i]], 
+                    midgup_upper = m3_quan[3, ][[i]],
+                midgdown_lower = m5_quan[1, ][[i]], midgdown = m5_quan[2, ][[i]], 
+                    midgdown_upper = m5_quan[3, ][[i]]
             ))
         } else {
             bf_phenos <- rbind(bf_phenos, list(
@@ -209,25 +220,38 @@ FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL, ifp
     bf_pred <- NULL
     if (ifplot == TRUE) { # fig: Bayesian Mixed model fit
         #~ Predict fitted value for full dates ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        model_str <- "m1 + (m2 - m7 * t) * ((1 / (1 + exp((m3 - t) / m4))) - (1 / (1 + exp((m5 - t) / m6))))"
+        model_str <- "m1 + (m2 - m7 * t) * ((1 / (1 + exp((m3 - t) / m4))) - 
+            (1 / (1 + exp((m5 - t) / m6))))"
         years <- sort(unique(year(date_vec)))
         for (i in 1:numYears) { # i = 1
-            date <- seq(as.Date(paste0(years[i], "-01-01")), as.Date(paste0(years[i], "-12-31")), by = "day")
-            bf_params <- data.table(m1 = m1[, i], m2 = m2[, i], m3 = m3[, i], m4 = m4[, i], m5 = m5[, i], m6 = m6[, i], m7 = m7[, i])
-            phenos_idx <- data.table(midgup = numeric(nrow(bf_params)), midgdown = numeric(nrow(bf_params)))
+            date <- seq(as.Date(paste0(years[i], "-01-01")), 
+                as.Date(paste0(years[i], "-12-31")), by = "day")
+            bf_params <- data.table(m1 = m1[, i], m2 = m2[, i], m3 = m3[, i], 
+                m4 = m4[, i], m5 = m5[, i], m6 = m6[, i], m7 = m7[, i])
+            phenos_idx <- data.table(midgup = numeric(nrow(bf_params)), 
+                midgdown = numeric(nrow(bf_params)))
 
             predCI <- NULL
             for (j in 1:nrow(bf_params)) { # j = 1
                 # pred based on current parameter samples
                 pred <- eval(str2expression(model_str), envir = list(
-                    m1 = as.numeric(bf_params[j, 1]), m2 = as.numeric(bf_params[j, 2]), m3 = as.numeric(bf_params[j, 3]), m4 = as.numeric(bf_params[j, 4]),
-                    m5 = as.numeric(bf_params[j, 5]), m6 = as.numeric(bf_params[j, 6]), m7 = as.numeric(bf_params[j, 7]),
+                    m1 = as.numeric(bf_params[j, 1]), 
+                    m2 = as.numeric(bf_params[j, 2]), 
+                    m3 = as.numeric(bf_params[j, 3]), 
+                    m4 = as.numeric(bf_params[j, 4]),
+                    m5 = as.numeric(bf_params[j, 5]), 
+                    m6 = as.numeric(bf_params[j, 6]), 
+                    m7 = as.numeric(bf_params[j, 7]),
                     t = 1:length(date)
                 ))
                 predCI <- cbind(predCI, pred)
             }
 
-            predCI <- t(data.table(apply(predCI, 1, function(x) quantile(x, c(0.025, 0.975)))))
+            predCI <- t(data.table(
+                apply(predCI, 1, function(x) {
+                    quantile(x, c(0.025, 0.975))
+                }
+            )))
 
             pred <- data.table(apply(predCI, 1, function(x) quantile(x, 0.5)))
             cur_year_pred <- cbind(date, pred)
@@ -241,13 +265,17 @@ FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL, ifp
 
         # ~ do the plot ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         bf_phenos <- data.table(bf_phenos)
-        plot(bf_pred$Date, bf_pred$Fitted, cex = 0, ylim = c(-0.1, 1.2), xlab = "Date", ylab = "EVI2")
-        polygon(c(bf_pred$Date, rev(bf_pred$Date)), c(bf_pred$Fitted_upper, rev(bf_pred$Fitted_lower)),
+        plot(bf_pred$Date, bf_pred$Fitted, cex = 0, ylim = c(-0.1, 1.2), 
+            xlab = "Date", ylab = "EVI2")
+        polygon(c(bf_pred$Date, rev(bf_pred$Date)), c(bf_pred$Fitted_upper, 
+            rev(bf_pred$Fitted_lower)),
             col = Transparent("red", 0.2),
             border = NA
         )
-        points(date_vec, vi_vec, pch = 16, col = Transparent(rep("black", length(weights_vec)), weights_vec), cex = 0.5)
-        lines(bf_pred$Date, bf_pred$Fitted, type = "l", ylim = c(0, 1), col = "red", lwd = 2)
+        points(date_vec, vi_vec, pch = 16, col = Transparent(rep("black", 
+            length(weights_vec)), weights_vec), cex = 0.5)
+        lines(bf_pred$Date, bf_pred$Fitted, type = "l", ylim = c(0, 1), 
+            col = "red", lwd = 2)
 
         pheno_names <- c("midgup", "midgdown")
         pheno_colors <- rev(viridis(9))
@@ -259,17 +287,22 @@ FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL, ifp
             phn_val <- bf_pred[Date %in% as.Date(as.character(phn_dates)), Fitted]
 
             points(phn_dates, phn_val, pch = 16, col = pheno_colors[k])
-            phn_dates_lower <- as.Date(paste0(years, "-01-01")) + unlist(bf_phenos[!is.na(get(pheno)), ][[paste0(pheno, "_lower")]])
-            phn_dates_upper <- as.Date(paste0(years, "-01-01")) + unlist(bf_phenos[!is.na(get(pheno)), ][[paste0(pheno, "_upper")]])
+            phn_dates_lower <- as.Date(paste0(years, "-01-01")) + 
+                unlist(bf_phenos[!is.na(get(pheno)), ][[paste0(pheno, "_lower")]])
+            phn_dates_upper <- as.Date(paste0(years, "-01-01")) + 
+                unlist(bf_phenos[!is.na(get(pheno)), ][[paste0(pheno, "_upper")]])
             segments(phn_dates_lower, phn_val, phn_dates_upper, phn_val)
         }
         legend("top", ncol = 3, bty = "n", 
             lty = c(NA, 1, rep(NA, 3), 1), 
             pch = c(16, NA, 16, 15, 16, NA),
-            col = c("black", "red", pheno_colors[1], Transparent("red", 0.2), pheno_colors[2], "black"),
-            legend = c("Observations", "Median Fit", "SOS", "95% C.I. of fit", "EOS", "95% C.I. of phenometrics")
+            col = c("black", "red", pheno_colors[1], 
+                Transparent("red", 0.2), pheno_colors[2], "black"),
+            legend = c("Observations", "Median Fit", "SOS", "95% C.I. of fit", 
+                "EOS", "95% C.I. of phenometrics")
         )
-        legend("bottomright", bty = "n", legend = expression(italic("*Observation transparency depends on weight")), cex = 0.8)
+        legend("bottomright", bty = "n", legend = expression(italic(
+            "*Observation transparency depends on weight")), cex = 0.8)
     }
 
     return(list(fitted = bf_pred, phenos = bf_phenos))
@@ -308,7 +341,8 @@ GetPhenosIdx <- function(equation, params, t) {
     peak <- NULL
     peaks <- unlist(gregexpr("12", paste(d_code, collapse = ""))) # no match is -1
     if (peaks[1] == -1) peaks <- NULL
-    flat_peaks <- unlist(gregexpr("10+2", paste(d_code, collapse = ""))) # no match is -1
+    # no match is -1
+    flat_peaks <- unlist(gregexpr("10+2", paste(d_code, collapse = ""))) 
     if (flat_peaks[1] == -1) flat_peaks <- NULL
 
     if (is.null(peaks) & is.null(flat_peaks)) {
@@ -333,18 +367,21 @@ GetPhenosIdx <- function(equation, params, t) {
     
     dormancy <- localextr[which(localextr > (midgdown + 7))][1]
     
-    return(list(gup = gup, midgup = midgup, maturity = maturity, peak = peak, sene = sene, midgdown = midgdown, dormancy = dormancy))
+    return(list(gup = gup, midgup = midgup, maturity = maturity, peak = peak, 
+        sene = sene, midgdown = midgdown, dormancy = dormancy))
 }
 
 
 #' Fit the averaged model and get the model parameters
-#' @param date_vec: the date vector, be sure to convert the vector to "Date" format or use "yyyy-mm-dd" format string.
+#' @param date_vec: the date vector, be sure to convert the vector to "Date" 
+#' format or use "yyyy-mm-dd" format string.
 #' @vi_vec: The vegetation index vector.
 #' @param ifplot: logical. Plot the model fit if TRUE.
 FitAvgModel <- function(date_vec, vi_vec, ifplot = FALSE) {
     # check if date_vec is in Date format
     if (sum(!is.na(parse_date_time(date_vec, orders = "ymd"))) != length(date_vec)) {
-        stop("There're invalid Date values in the `date_vec`! Be sure to use `yyyy-mm-dd` format.")
+        stop("There're invalid Date values in the `date_vec`! 
+            Be sure to use `yyyy-mm-dd` format.")
     }
     vi_dt <- data.table(date = as.Date(date_vec), evi = vi_vec)
     vi_dt <- na.omit(vi_dt)
@@ -381,14 +418,17 @@ FitAvgModel <- function(date_vec, vi_vec, ifplot = FALSE) {
     # wgt[merge_dt$snow == TRUE] <- 0.5
 
     # Fit model to get the prior
-    model_str <- "m1 + (m2 - m7 * t) * ((1 / (1 + exp((m3 - t) / m4))) - (1 / (1 + exp((m5 - t) / m6))))"
+    model_str <- "m1 + (m2 - m7 * t) * ((1 / (1 + exp((m3 - t) / m4))) - 
+        (1 / (1 + exp((m5 - t) / m6))))"
     avg_fit <- tryCatch(
         {
             model_equ <- as.formula(paste("VI", "~", model_str))
             nlsLM(model_equ,
                 data = list(VI = y, t = as.integer(t)), weights = wgt, start = list(
-                    m1 = 0.05, m2 = 1, m3 = 120, m4 = 6, m5 = 290, m6 = 8, m7 = 0.001
-                ), lower = c(0, 0.1, 1, 0, 1, 0, 0.00001), upper = c(1, 100, 185, 100, 370, 100, 0.01),
+                    m1 = 0.05, m2 = 1, m3 = 120, m4 = 6, m5 = 290, m6 = 8, 
+                    m7 = 0.001), 
+                    lower = c(0, 0.1, 1, 0, 1, 0, 0.00001), 
+                    upper = c(1, 100, 185, 100, 370, 100, 0.01),
                 control = list(warnOnly = TRUE)
             )
         },
@@ -408,26 +448,39 @@ FitAvgModel <- function(date_vec, vi_vec, ifplot = FALSE) {
             pred <- predict(avg_fit, newdata = list(t = full_t))
             phenos_idx <- GetPhenosIdx(str2expression(model_str),
                 params = list(
-                    m1 = coef(avg_fit)["m1"], m2 = coef(avg_fit)["m2"],
-                    m3 = coef(avg_fit)["m3"], m4 = coef(avg_fit)["m4"], m5 = coef(avg_fit)["m5"], m6 = coef(avg_fit)["m6"], m7 = coef(avg_fit)["m7"]
+                    m1 = coef(avg_fit)["m1"], 
+                    m2 = coef(avg_fit)["m2"],
+                    m3 = coef(avg_fit)["m3"], 
+                    m4 = coef(avg_fit)["m4"], 
+                    m5 = coef(avg_fit)["m5"], 
+                    m6 = coef(avg_fit)["m6"], 
+                    m7 = coef(avg_fit)["m7"]
                 ),
                 t = full_t
             )
             phenos <- full_date[unlist(phenos_idx)]
         }
         
-        plot(vi_dt[, .(avg_date, evi)], pch = 16, col = "seagreen", xlab = "", ylab = "")
+        plot(vi_dt[, .(avg_date, evi)], pch = 16, col = "seagreen", 
+            xlab = "", ylab = "")
         mtext(text = "Date", side = 1, line = 2)
         mtext(text = "EVI2", side = 2, line = 2)
     
         lines(full_date, pred, col = "orange", lwd = 2)
-        points(full_date[phenos_idx$gup], pred[phenos_idx$gup], pch = 21, lwd = 2, cex = 1.5, bg = "red")
-        points(full_date[phenos_idx$midgup], pred[phenos_idx$midgup], pch = 21, lwd = 2, cex = 1.5, bg = "red")
-        points(full_date[phenos_idx$maturity], pred[phenos_idx$maturity], pch = 21, lwd = 2, cex = 1.5, bg = "red")
-        points(full_date[phenos_idx$peak], pred[phenos_idx$peak], pch = 21, lwd = 2, cex = 1.5, bg = "red")
-        points(full_date[phenos_idx$sene], pred[phenos_idx$sene], pch = 21, lwd = 2, cex = 1.5, bg = "red")
-        points(full_date[phenos_idx$midgdown], pred[phenos_idx$midgdown], pch = 21, lwd = 2, cex = 1.5, bg = "red")
-        points(full_date[phenos_idx$dormancy], pred[phenos_idx$dormancy], pch = 21, lwd = 2, cex = 1.5, bg = "red")
+        points(full_date[phenos_idx$gup], pred[phenos_idx$gup], 
+            pch = 21, lwd = 2, cex = 1.5, bg = "red")
+        points(full_date[phenos_idx$midgup], pred[phenos_idx$midgup], 
+            pch = 21, lwd = 2, cex = 1.5, bg = "red")
+        points(full_date[phenos_idx$maturity], pred[phenos_idx$maturity], 
+            pch = 21, lwd = 2, cex = 1.5, bg = "red")
+        points(full_date[phenos_idx$peak], pred[phenos_idx$peak], 
+            pch = 21, lwd = 2, cex = 1.5, bg = "red")
+        points(full_date[phenos_idx$sene], pred[phenos_idx$sene], 
+            pch = 21, lwd = 2, cex = 1.5, bg = "red")
+        points(full_date[phenos_idx$midgdown], pred[phenos_idx$midgdown], 
+            pch = 21, lwd = 2, cex = 1.5, bg = "red")
+        points(full_date[phenos_idx$dormancy], pred[phenos_idx$dormancy], 
+            pch = 21, lwd = 2, cex = 1.5, bg = "red")
     }
 
     return(avg_fit)

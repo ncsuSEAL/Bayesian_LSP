@@ -1,8 +1,7 @@
-#************************************************************************
+#************************************************************************************
 # Description: Use AppEEARS API to submit point or area jobs
-# Author: Xiaojie(J) Gao
 # Date: 2021-11-19
-#************************************************************************
+#************************************************************************************
 library(httr)
 library(jsonlite)
 library(tools)
@@ -44,7 +43,8 @@ library(geojsonR)
 #'     layer = c("SRB3", "SRB3")
 #' )
 #' 
-#' # login and get the token, note that if no arguments passed, input username and password in the terminal
+#' # login and get the token, note that if no arguments passed, input username 
+#' # and password in the terminal
 #' token <- Login(usr = "[your username]", pwd = "[your password]")
 #' 
 #' SubmitTask(
@@ -56,12 +56,13 @@ library(geojsonR)
 #' 
 #' # ~ submit area task
 #' # ~~~~~~~~~~~~~~~~~
-#' # login and get the token, note that if no arguments passed, input username and password in the terminal
+#' # login and get the token, note that if no arguments passed, input username and
+#' # password in the terminal
 #' token <- Login(usr = "[your username]", pwd = "[your password]")
 #' SubmitTask(
 #'     token = token, task_name = "test2", task_type = "area",
 #'     start_date = "01-01-2018", end_date = "06-01-2018", layers = layers,
-#'     polygon_file = "/Volumes/GoogleDrive/My Drive/Research/urban_pheno/Data/boston_bbox.geojson",
+#'     polygon_file = "Data/boston_bbox.geojson",
 #'     out_format = "geotiff", out_proj = "albers_ard_conus"
 #' )
 #' 
@@ -86,7 +87,8 @@ API_URL <- "https://lpdaacsvc.cr.usgs.gov/appeears/api/"
 # List all available products
 # Return a list
 QueryALLProducts <- function() {
-    prods_req <- GET(paste0(API_URL, "product")) # Request the info of all products from product service
+    # Request the info of all products from product service
+    prods_req <- GET(paste0(API_URL, "product")) 
     prods_content <- content(prods_req) # Retrieve the content of request
     
     # set names for each product 
@@ -128,9 +130,12 @@ Login <- function(usr, pwd) {
     # if username and password are not provided, input them in the ternimal window
     if(is.null(usr) | is.null(pwd)) {
         require(getPass)
-        message("username and password must be provided. You can create one on the EarthData website.")
-        usr <- getPass(msg = "Enter NASA Earthdata Login Username: ") # Enter NASA Earthdata Login Username
-        pwd <- getPass(msg = "Enter NASA Earthdata Login Password: ") # Enter NASA Earthdata Login Password
+        message("username and password must be provided. 
+            You can create one on the EarthData website.")
+        # Enter NASA Earthdata Login Username
+        usr <- getPass(msg = "Enter NASA Earthdata Login Username: ") 
+        # Enter NASA Earthdata Login Password
+        pwd <- getPass(msg = "Enter NASA Earthdata Login Password: ") 
     }
     response <- httr::POST(
         paste0(API_URL, "login"),
@@ -152,8 +157,9 @@ Logout <- function(token) {
 # Submit a point task
 # task_name can either be 'point' or 'area', but relative params need to be provided
 SubmitTask <- function(token, task_name, task_type = "point", 
-    start_date = NULL, end_date = NULL, recursive = FALSE, from_year = NULL, to_year = NULL, 
-    layers = NULL, point_df = NULL, polygon_file = NULL, out_format = "geotiff", out_proj = NULL) {
+    start_date = NULL, end_date = NULL, recursive = FALSE, from_year = NULL, 
+    to_year = NULL, layers = NULL, point_df = NULL, polygon_file = NULL, 
+    out_format = "geotiff", out_proj = NULL) {
     
     # check arguments
     if (sum(is.null(start_date), is.null(end_date), is.null(layers)) > 0) {
@@ -187,7 +193,8 @@ SubmitTask <- function(token, task_name, task_type = "point",
         )
 
         task_content <- content(response) # Retrieve content of the request
-        task_response <- prettify(toJSON(task_content, auto_unbox = TRUE)) # Convert the content to JSON object
+        # Convert the content to JSON object
+        task_response <- prettify(toJSON(task_content, auto_unbox = TRUE)) 
         
         return(task_response)
 
@@ -196,7 +203,8 @@ SubmitTask <- function(token, task_name, task_type = "point",
         if (file_ext(polygon_file) == "geojson") {
             polygon_f <- readOGR(polygon_file)
         } else if (file_ext(polygon_file) == "shp") {
-            polygon_f <- readOGR(dsn = dirname(polygon_file), layer = file_path_sans_ext(basename(polygon_file)))
+            polygon_f <- readOGR(dsn = dirname(polygon_file), 
+                layer = file_path_sans_ext(basename(polygon_file)))
         } else {
             stop("Please provide a valid shp or geojson file!")
         }
@@ -204,7 +212,8 @@ SubmitTask <- function(token, task_name, task_type = "point",
         # Convert the data frame to GeoJSON
         gc_json <- geojsonio::geojson_json(polygon_f, geometry = "polygon")
         gc_js <- geojsonR::FROM_GeoJson(gc_json) # Read the GeoJSON
-        gc_js$features[[1]]$geometry$coordinates <- list(gc_js$features[[1]]$geometry$coordinates)
+        gc_js$features[[1]]$geometry$coordinates <- list(
+            gc_js$features[[1]]$geometry$coordinates)
 
         out <- list(out_proj)
         names(out) <- c("projection")
@@ -222,7 +231,8 @@ SubmitTask <- function(token, task_name, task_type = "point",
         )
 
         task_content <- content(response) # Retrieve content of the request
-        task_response <- jsonlite::toJSON(task_content, auto_unbox = TRUE) # Convert the content to JSON and prettify it
+        # Convert the content to JSON and prettify it
+        task_response <- jsonlite::toJSON(task_content, auto_unbox = TRUE) 
         prettify(task_response)
     }
 }
@@ -235,7 +245,8 @@ CheckTaskStatus <- function(token, limit, task_name = NULL, brief = FALSE) {
         add_headers(Authorization = token)
     )
     response_content <- content(response_req) # Retrieve content of the request
-    status_response <- toJSON(response_content, auto_unbox = TRUE) # Convert the content to JSON object
+    # Convert the content to JSON object
+    status_response <- toJSON(response_content, auto_unbox = TRUE) 
     response_df <- fromJSON(status_response)
     names(response_content) <- response_df$task_name
 
@@ -269,8 +280,10 @@ RefreshTaskStatus <- function(token, task_id, interval = 60) {
     stat <- ""
     while (stat != "done") {
         # Request the task status and retrieve content of request from task URL
-        stat_content <- content(GET(paste0(API_URL, "task/", task_id), add_headers(Authorization = token)))
-        stat <- fromJSON(toJSON(stat_content, auto_unbox = TRUE))$status # Get the status
+        stat_content <- content(GET(paste0(API_URL, "task/", task_id), 
+            add_headers(Authorization = token)))
+        # Get the status
+        stat <- fromJSON(toJSON(stat_content, auto_unbox = TRUE))$status 
         print(stat)
 
         Sys.sleep(interval)
@@ -280,9 +293,11 @@ RefreshTaskStatus <- function(token, task_id, interval = 60) {
 # Download a task result
 DownloadTask <- function(token, task_id, out_dir) {
     # Request the task bundle info from API bundle URL
-    response <- GET(paste0(API_URL, "bundle/", task_id), add_headers(Authorization = token))
+    response <- GET(paste0(API_URL, "bundle/", task_id), 
+        add_headers(Authorization = token))
     response_content <- content(response) # Retrieve content of the request
-    bundle_response <- toJSON(response_content, auto_unbox = TRUE) # Convert the content to JSON object
+    # Convert the content to JSON object
+    bundle_response <- toJSON(response_content, auto_unbox = TRUE) 
     prettify(bundle_response)
 
     bundle <- fromJSON(bundle_response)$files

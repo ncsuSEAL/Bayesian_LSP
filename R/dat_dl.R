@@ -1,5 +1,4 @@
 #************************************************************************************
-# Description: Download Landsat time series
-# Author: Xiaojie(J) Gao
+# Description: Download Landsat time series using AppEEARS.
 # Date: 2022-03-27
 #************************************************************************************
