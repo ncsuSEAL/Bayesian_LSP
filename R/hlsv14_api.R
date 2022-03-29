@@ -1,8 +1,8 @@
-#************************************************************************
-# Description: Download Harmonized Landsat and Sentinel-2 imagery. See https://hls.gsfc.nasa.gov/
-# Author: Xiaojie Gao
+#************************************************************************************
+# Description: Download Harmonized Landsat and Sentinel-2 imagery. 
+#     See https://hls.gsfc.nasa.gov/
 # Date: 2020-10-14
-#************************************************************************
+#************************************************************************************
 library(utils)
 library(httr)
 library(XML)
@@ -16,7 +16,8 @@ library(gdalUtils)
 #' @param out_dir Data save directory.
 #' @param tiles Tile names needed.
 #' @param yrs Years needed.
-#' @param crop_file A study region vector file path. If provided, the image will be croped to the specified region and saved to GTiff format.
+#' @param crop_file A study region vector file path. If provided, the image 
+#' will be croped to the specified region and saved to GTiff format.
 #' @return NULL
 #' @export
 #' @example 
@@ -33,12 +34,16 @@ Download_HLS <- function(out_dir, tiles, yrs, crop_file = NULL) {
     root_url <- "https://hls.gsfc.nasa.gov/data/v1.4"
 
     for(prod in c("S30", "L30")) {
-        if (!dir.exists(file.path(out_dir, prod))) dir.create(file.path(out_dir, prod))
+        if (!dir.exists(file.path(out_dir, prod))) {
+            dir.create(file.path(out_dir, prod))
+        }
 
         for(yr in yrs) {
             for(tile in tiles) {
                 # construct data file urls
-                tile_folder_url <- file.path(root_url, prod, yr, substr(tile, 1, 2), substr(tile, 3, 3), substr(tile, 4, 4), substr(tile, 5, 5))
+                tile_folder_url <- file.path(root_url, prod, yr, 
+                    substr(tile, 1, 2), substr(tile, 3, 3), 
+                    substr(tile, 4, 4), substr(tile, 5, 5))
                 # request for contents
                 r <- GET(tile_folder_url)
                 doc <- htmlParse(r)
@@ -65,10 +70,14 @@ Download_HLS <- function(out_dir, tiles, yrs, crop_file = NULL) {
                                 sds <- get_subdatasets(hdf_file)
                                 r <- stack(sds)
                                 crop_extent <- readOGR(crop_file, verbos = FALSE)
-                                crop_extent_reproj <- spTransform(crop_extent, crs(r))
-                                r_crop <- raster::crop(r, crop_extent_reproj, snap = "in")
-                                writeRaster(r_crop, hdf_file, format = "GTiff", overwrite = TRUE)
-                                message(paste("croped file and saved it to GTiff: ", hdf_file))
+                                crop_extent_reproj <- spTransform(
+                                    crop_extent, crs(r))
+                                r_crop <- raster::crop(r, crop_extent_reproj, 
+                                    snap = "in")
+                                writeRaster(r_crop, hdf_file, format = "GTiff", 
+                                    overwrite = TRUE)
+                                message(paste("croped file and saved it to GTiff: ", 
+                                    hdf_file))
                                 # remove the original hdf file
                                 file.remove(hdf_file)
                                 file.remove(hdr_file)

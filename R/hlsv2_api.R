@@ -1,11 +1,12 @@
-#************************************************************************
+#************************************************************************************
 # Description: Working with HLS data API, including image query and download.
-#              Note the `.netrc` file login of earthdata doesn't work for me, so I figured an around way.
-#              Currently, the `DownloadQueriedHLS` function would download the whole HLS tile and if an roi
-#              is provided, it would crop and overwrite the downloaded image file.
+#     Note the `.netrc` file login of earthdata doesn't work for me, so I figured a 
+#     way around. Currently, the `DownloadQueriedHLS` function would download the 
+#     whole HLS tile and if an roi is provided, it would crop and overwrite the 
+#     downloaded image file.
 # Author: Xiaojie(J) Gao
 # Date: 2021-12-19
-#************************************************************************
+#************************************************************************************
 
 
 library(rgdal)
@@ -21,12 +22,14 @@ library(geojsonR)
 #' \dontrun{
 #'
 #' # read a study region
-#' roi_geojson <- readOGR("/Volumes/GoogleDrive/My Drive/Research/urban_pheno/Data/boston_bbox.geojson")
+#' roi_geojson <- readOGR("/Volumes/GoogleDrive/My Drive/
+#'   Research/urban_pheno/Data/boston_bbox.geojson")
 #' # view the study region
 #' mapview::mapview(roi_geojson, col.regions = NA)
 #'
 #' # search for images within a time period
-#' search_req <- QueryHLS(roi = extent(roi_geojson), start_date = "2021-08-01", end_date = "2021-08-15")
+#' search_req <- QueryHLS(roi = extent(roi_geojson), 
+#'    start_date = "2021-08-01", end_date = "2021-08-15")
 #' # Format the query result as a data frame
 #' img_df <- FormatReq2DT(search_req)
 #' DT::datatable(img_df)
@@ -79,7 +82,8 @@ FormatReq2DT <- function(search_req,
     # A searchable data table
     granule_list <- list()
     n <- 1
-    for (item in row.names(search_features)) { # Get the NIR, Red, and Quality band layer names
+    # Get the NIR, Red, and Quality band layer names
+    for (item in row.names(search_features)) { 
         if (search_features[item, ]$collection == "HLSS30.v2.0") {
             bands <- s_bands
         } else {
@@ -89,8 +93,9 @@ FormatReq2DT <- function(search_req,
             f <- search_features[item, ]
             b_assets <- f$assets[[b]]$href
 
+            # Make a data frame including links and other info
             df <- data.frame(
-                Collection = f$collection, # Make a data frame including links and other info
+                Collection = f$collection, 
                 Granule_ID = f$id,
                 Cloud_Cover = f$properties$`eo:cloud_cover`,
                 band = b,
@@ -118,11 +123,16 @@ BriefView <- function(browse_img_url) {
 
 # This function doesn't work, but I keep it here for a future fix
 CropCloudHLS <- function(roi, img_urls) {
-    rgdal::setCPLConfigOption(ConfigOption = "GDAL_HTTP_UNSAFESSL", value = "YES")
-    rgdal::setCPLConfigOption(ConfigOption = "GDAL_HTTP_COOKIEFILE", value = ".rcookies")
-    rgdal::setCPLConfigOption(ConfigOption = "GDAL_HTTP_COOKIEJAR", value = ".rcookies")
-    rgdal::setCPLConfigOption(ConfigOption = "GDAL_DISABLE_READDIR_ON_OPEN", value = "YES")
-    rgdal::setCPLConfigOption(ConfigOption = "CPL_VSIL_CURL_ALLOWED_EXTENSIONS", value = "TIF")
+    rgdal::setCPLConfigOption(ConfigOption = "GDAL_HTTP_UNSAFESSL", 
+        value = "YES")
+    rgdal::setCPLConfigOption(ConfigOption = "GDAL_HTTP_COOKIEFILE", 
+        value = ".rcookies")
+    rgdal::setCPLConfigOption(ConfigOption = "GDAL_HTTP_COOKIEJAR", 
+        value = ".rcookies")
+    rgdal::setCPLConfigOption(ConfigOption = "GDAL_DISABLE_READDIR_ON_OPEN", 
+        value = "YES")
+    rgdal::setCPLConfigOption(ConfigOption = "CPL_VSIL_CURL_ALLOWED_EXTENSIONS", 
+        value = "TIF")
 
     # make sure the spatial reference is consistent
     r1 <- raster(img_urls[1])
@@ -143,8 +153,11 @@ CropCloudHLS <- function(roi, img_urls) {
 
 
 # Download queried HLS tiles
-# If an roi is provided and `crop` is set to TRUE, this function would crop and overwrite the downloaded images
-DownloadQueriedHLS <- function(img_urls, out_dir, username, password, roi = NULL, crop = TRUE) {
+# If an roi is provided and `crop` is set to TRUE, this function would crop 
+# and overwrite the downloaded images
+DownloadQueriedHLS <- function(img_urls, out_dir, username, password, roi = NULL, 
+    crop = TRUE) {
+    
     if (dir.exists(out_dir) == FALSE) dir.create(file.path(out_dir))
 
     for (i in 1:length(img_urls)) {
