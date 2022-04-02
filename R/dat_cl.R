@@ -12,11 +12,11 @@
 #' @export
 #' 
 #' @examples 
-#' /dontrun {
+#' \dontrun{
 #' 
 #' }
 CalEvi2Point <- function(ard_pt_csv, out_file) {
-    pass
+    
 }
 
 

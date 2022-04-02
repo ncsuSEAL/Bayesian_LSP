@@ -4,12 +4,7 @@
 #************************************************************************************
 
 
-# The double-logistic model
-model_str <- "m1 + (m2 - m7 * t) * ((1 / (1 + exp((m3 - t) / m4))) -
-    (1 / (1 + exp((m5 - t) / m6))))"
-
-
-#' Bayesian mixed hierarchical land surface phenology model
+#' Bayesian mixed hierarchical land surface phenology model.
 #' 
 #' @param date_vec The date vector, be sure to convert the vector to "Date" format 
 #' or use "yyyy-mm-dd" format string.
@@ -22,27 +17,30 @@ model_str <- "m1 + (m2 - m7 * t) * ((1 / (1 + exp((m3 - t) / m4))) -
 #' with CI will only be returned when `ifplot` is TRUE.
 #' @return retrieved phenometrics for each year.
 #' @export 
-FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL, 
-    ifplot = FALSE) {
-    # check if date_vec is in Date format
-    if (sum(!is.na(parse_date_time(date_vec, orders = "ymd"))) != length(date_vec)) {
+FitBLSP <- function(date_vec, vi_vec, 
+    weights_vec = NULL, initValues = NULL, 
+    ifplot = FALSE
+) {
+    # Check if date_vec is in Date format
+    if (sum(!is.na(lubridate::parse_date_time(date_vec, orders = "ymd"))) != 
+        length(date_vec)) {
         stop("There're invalid Date values in the `date_vec`! 
             Be sure to use `yyyy-mm-dd` format.")
     }
     
-    # convert data to jags format
+    # Convert data to jags format
     y <- vi_vec
     t <- as.numeric(date_vec - as.Date(paste0(year(date_vec), "-01-01"))) + 1
     n <- length(y) # total num of observations
     yr <- year(date_vec) - year(date_vec)[1] + 1 # year id vector
     numYears <- length(unique(yr))
 
-    # if user specified weights
-    if (is.null(weights_vec)) weights_vec <- rep(1, n)
-
+    # If user specified weights
+    if (is.null(weights_vec)) {
+        weights_vec <- rep(1, n)
+    }
 
     # ~ Format data, inits, and model
-    # ~~~~~~~~~~~~~~~~~
     model_string <- "model {
         # Likelihood
         for (i in 1:n) {
@@ -102,24 +100,32 @@ FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL,
     inits <- list(
         M1 = rep(p_m1, numYears),
         m2 = rep(p_m2, numYears), m3 = rep(p_m3, numYears),
-        m4 = rep(p_m4, numYears), m5 = rep(p_m5, numYears), m6 = rep(p_m6, numYears)
+        m4 = rep(p_m4, numYears), m5 = rep(p_m5, numYears), 
+        m6 = rep(p_m6, numYears)
     )
 
-    model <- jags.model(textConnection(model_string), data = data, inits = inits, 
-        n.chains = 3, quiet = TRUE)
     tryCatch(
         {
+            model <- rjags::jags.model(textConnection(model_string),
+                data = data, inits = inits,
+                n.chains = 3, quiet = TRUE
+            )
             update(model, 2000, progress.bar = "none")
             iteration_times <- 0
             repeat {
-                samp <- coda.samples(model,
+                samp <- rjags::coda.samples(model,
                     variable.names = c("m1", "m2", "m3", "m4", "m5", "m6", "m7"),
                     n.iter = 5000,
                     thin = 10,
                     progress.bar = "none"
                 )
                 iteration_times <- iteration_times + 5000
-                if(gelman.diag(samp)$mpsrf <= 1.3 | iteration_times > 100000) break
+                
+                # Try to make it converge
+                if(coda::gelman.diag(samp)$mpsrf <= 1.3 | 
+                    iteration_times > 100000) {
+                    break
+                }
             }
             print(iteration_times)
         },
@@ -137,10 +143,7 @@ FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL,
         }
     )
 
-    # plot(samp)
-
     # ~ Retrieve parameter estimates
-    # ~~~~~~~~~~~~~~~~~
     m1 <- m2 <- m3 <- m4 <- m5 <- m6 <- m7 <- NULL
     for (i in 1:numYears) {
         m1 <- cbind(m1, c(samp[[1]][, paste0("m1", "[", i, "]")], 
@@ -159,10 +162,10 @@ FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL,
             samp[[2]][, paste0("m7", "[", i, "]")]))
     }
 
-    m1_quan <- data.table(apply(m1, 2, quantile, c(0.05, 0.5, 0.95)))
-    m2_quan <- data.table(apply(m2, 2, quantile, c(0.05, 0.5, 0.95)))
-    m3_quan <- data.table(apply(m3, 2, quantile, c(0.05, 0.5, 0.95)))
-    m5_quan <- data.table(apply(m5, 2, quantile, c(0.05, 0.5, 0.95)))
+    m1_quan <- data.table::data.table(apply(m1, 2, quantile, c(0.05, 0.5, 0.95)))
+    m2_quan <- data.table::data.table(apply(m2, 2, quantile, c(0.05, 0.5, 0.95)))
+    m3_quan <- data.table::data.table(apply(m3, 2, quantile, c(0.05, 0.5, 0.95)))
+    m5_quan <- data.table::data.table(apply(m5, 2, quantile, c(0.05, 0.5, 0.95)))
     
     years <- sort(unique(year(date_vec)))
     bf_phenos <- NULL
@@ -187,7 +190,6 @@ FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL,
 
     # ~ If visualize the fit
     # Note: when plotting out the fit, the fitted curve with CI will be returned.
-    # ~~~~~~~~~~~~~~~~~
     bf_pred <- NULL
     if (ifplot == TRUE) { # fig: Bayesian Mixed model fit
         #~ Predict fitted value for full dates ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -197,9 +199,10 @@ FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL,
         for (i in 1:numYears) { # i = 1
             date <- seq(as.Date(paste0(years[i], "-01-01")), 
                 as.Date(paste0(years[i], "-12-31")), by = "day")
-            bf_params <- data.table(m1 = m1[, i], m2 = m2[, i], m3 = m3[, i], 
-                m4 = m4[, i], m5 = m5[, i], m6 = m6[, i], m7 = m7[, i])
-            phenos_idx <- data.table(midgup = numeric(nrow(bf_params)), 
+            bf_params <- data.table::data.table(m1 = m1[, i], m2 = m2[, i], 
+                m3 = m3[, i], m4 = m4[, i], m5 = m5[, i], m6 = m6[, i], 
+                m7 = m7[, i])
+            phenos_idx <- data.table::data.table(midgup = numeric(nrow(bf_params)), 
                 midgdown = numeric(nrow(bf_params)))
 
             predCI <- NULL
@@ -224,18 +227,20 @@ FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL,
                 }
             )))
 
-            pred <- data.table(apply(predCI, 1, function(x) quantile(x, 0.5)))
+            pred <- data.table::data.table(
+                apply(predCI, 1, function(x) quantile(x, 0.5))
+            )
             cur_year_pred <- cbind(date, pred)
             bf_pred <- rbind(bf_pred, cbind(cur_year_pred, predCI))
         }
 
-        bf_pred <- as.data.table(bf_pred)
+        bf_pred <- data.table::as.data.table(bf_pred)
         colnames(bf_pred) <- c("Date", "Fitted", "Fitted_lower", "Fitted_upper")
         bf_pred$Date <- as.Date(bf_pred$Date, origin = "1970-01-01")
 
 
         # ~ do the plot ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        bf_phenos <- data.table(bf_phenos)
+        bf_phenos <- data.table::data.table(bf_phenos)
         plot(bf_pred$Date, bf_pred$Fitted, cex = 0, ylim = c(-0.1, 1.2), 
             xlab = "Date", ylab = "EVI2")
         polygon(c(bf_pred$Date, rev(bf_pred$Date)), c(bf_pred$Fitted_upper, 
@@ -249,7 +254,7 @@ FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL,
             col = "red", lwd = 2)
 
         pheno_names <- c("midgup", "midgdown")
-        pheno_colors <- rev(viridis(9))
+        pheno_colors <- rev(viridis::viridis(9))
         for (k in 1:length(pheno_names)) { # k = 1
             pheno <- pheno_names[k]
             phn_dates <- bf_phenos[!is.na(get(pheno)), ][[pheno]]
@@ -281,7 +286,12 @@ FitBLSP <- function(date_vec, vi_vec, weights_vec = NULL, initValues = NULL,
 
 
 #' Generate pheno from the predicted curve.
-#' Only supports Elmore model
+#' Only supports Elmore model (The double-logistic model used in BLSP).
+#' 
+#' @param equation The model equation.
+#' @param params The Parameter list.
+#' @param t Date vector.
+#' @return The phenological timing.
 GetPhenosIdx <- function(equation, params, t) {
     y <- eval(equation, envir = list(
         m1 = params$m1, m2 = params$m2, m3 = params$m3, m4 = params$m4,
@@ -352,13 +362,14 @@ GetPhenosIdx <- function(equation, params, t) {
 #' @export 
 FitAvgModel <- function(date_vec, vi_vec, ifplot = FALSE) {
     # check if date_vec is in Date format
-    if (sum(!is.na(parse_date_time(date_vec, orders = "ymd"))) != length(date_vec)) {
+    if (sum(!is.na(lubridate::parse_date_time(date_vec, orders = "ymd"))) != 
+        length(date_vec)) {
         stop("There're invalid Date values in the `date_vec`! 
             Be sure to use `yyyy-mm-dd` format.")
     }
-    vi_dt <- data.table(date = as.Date(date_vec), evi = vi_vec)
+    vi_dt <- data.table::data.table(date = as.Date(date_vec), evi = vi_vec)
     vi_dt <- na.omit(vi_dt)
-    vi_dt <- setorder(vi_dt, date)
+    vi_dt <- data.table::setorder(vi_dt, date)
 
     vi_dt$avg_date <- as.Date(paste0("1970", substr(vi_dt$date, 5, 10)))
 
@@ -376,7 +387,7 @@ FitAvgModel <- function(date_vec, vi_vec, ifplot = FALSE) {
         }
         return(list(date = x, evi = evi))
     })
-    merge_dt <- as.data.table(t(merge_dt))
+    merge_dt <- data.table::as.data.table(t(merge_dt))
 
     cur_start_date <- as.Date("1970-01-01")
     cur_end_date <- as.Date("1970-12-31")
@@ -391,12 +402,10 @@ FitAvgModel <- function(date_vec, vi_vec, ifplot = FALSE) {
     # wgt[merge_dt$snow == TRUE] <- 0.5
 
     # Fit model to get the prior
-    model_str <- "m1 + (m2 - m7 * t) * ((1 / (1 + exp((m3 - t) / m4))) - 
-        (1 / (1 + exp((m5 - t) / m6))))"
     avg_fit <- tryCatch(
         {
             model_equ <- as.formula(paste("VI", "~", model_str))
-            nlsLM(model_equ,
+            minpack.lm::nlsLM(model_equ,
                 data = list(VI = y, t = as.integer(t)), weights = wgt, start = list(
                     m1 = 0.05, m2 = 1, m3 = 120, m4 = 6, m5 = 290, m6 = 8, 
                     m7 = 0.001), 
