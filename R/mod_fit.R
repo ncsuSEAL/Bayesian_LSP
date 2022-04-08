@@ -3,6 +3,7 @@
 # Date: 2022-03-29
 #************************************************************************************
 
+.datatable.aware = TRUE
 
 #' Bayesian mixed hierarchical land surface phenology model.
 #' 
@@ -368,10 +369,9 @@ FitAvgModel <- function(date_vec, vi_vec, ifplot = FALSE) {
             Be sure to use `yyyy-mm-dd` format.")
     }
     vi_dt <- data.table::data.table(date = as.Date(date_vec), evi = vi_vec)
+    vi_dt$avg_date <- as.Date(paste0("1970", substr(vi_dt$date, 5, 10)))
     vi_dt <- na.omit(vi_dt)
     vi_dt <- data.table::setorder(vi_dt, date)
-
-    vi_dt$avg_date <- as.Date(paste0("1970", substr(vi_dt$date, 5, 10)))
 
     unique_dates <- unique(vi_dt$avg_date)
 
