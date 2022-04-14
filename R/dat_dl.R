@@ -25,9 +25,15 @@ Login <- function(usr, pwd) {
         return(NULL)
     }
 
+    secret <- jsonlite::base64_enc(paste(usr, pwd, sep = ":"))
+
     response <- httr::POST(
         paste0(API_URL, "login"),
-        httr::authenticate(usr, pwd)
+        httr::add_headers(
+            "Authorization" = paste("Basic", gsub("\n", "", secret)),
+            "Content-Type" = "application/x-www-form-urlencoded;charset=UTF-8"
+        ),
+        body = "grant_type=client_credentials"
     )
     response_content <- httr::content(response)
     token <- paste("Bearer", response_content$token)
@@ -102,7 +108,7 @@ SubmitTask <- function(token, task_name, task_type = "point",
         response <- httr::POST(paste0(API_URL, "task"),
             body = task_json,
             encode = "json",
-            add_headers(Authorization = token, "Content-Type" = "application/json")
+            httr::add_headers(Authorization = token, "Content-Type" = "application/json")
         )
 
         task_content <- httr::content(response) # Retrieve content of the request
@@ -281,7 +287,7 @@ ReqArdPoint <- function(pts_df, task_name, token,
     # Submit point task
     SubmitTask(
         token = token, task_name = task_name, task_type = "point",
-        start_date = start_date, end_date = end_date, layers = layers,
+        start_date = start_date, end_date = end_date, layers = landsatARD_layers,
         point_df = pts_df
     )
 

@@ -7,7 +7,8 @@
 model_str <- "m1 + (m2 - m7 * t) * ((1 / (1 + exp((m3 - t) / m4))) -
             (1 / (1 + exp((m5 - t) / m6))))"
 
-API_URL <- "https://lpdaacsvc.cr.usgs.gov/appeears/api/"
+# API_URL <- "https://lpdaacsvc.cr.usgs.gov/appeears/api/"
+API_URL <- "https://appeears.earthdatacloud.nasa.gov/api/"
 
 
 #' Make a standard color transparent.
