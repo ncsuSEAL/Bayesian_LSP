@@ -55,6 +55,13 @@ Logout <- function(token) {
 #' @param token AppEEARS login token. Use `Login()` to get a token.
 #' @param task_name The name of the task.
 #' @param task_type The AppEEARS task type, either "point" or "area".
+#' @param start_date,end_date The start and end dates of the requested time series.
+#' @param recursive If the specified start and end dates are recursive. See AppEEARS
+#' documentation.
+#' @param layers The interested layers.
+#' @param out_format The desired image format, default is `geotiff`.
+#' @param out_proj The desired image projection.
+#' 
 #' @return 
 #' 
 #' @examples 
@@ -62,8 +69,8 @@ Logout <- function(token) {
 #' 
 #' }
 SubmitTask <- function(token, task_name, task_type = "point", 
-    start_date = NULL, end_date = NULL, recursive = FALSE, from_year = NULL, 
-    to_year = NULL, layers = NULL, point_df = NULL, polygon_file = NULL, 
+    start_date = NULL, end_date = NULL, recursive = FALSE, layers = NULL, 
+    point_df = NULL, polygon_file = NULL, 
     out_format = "geotiff", out_proj = NULL
 ) {
     # check arguments
