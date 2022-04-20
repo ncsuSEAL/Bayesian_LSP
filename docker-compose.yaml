@@ -1,0 +1,10 @@
+version: '1'
+services:
+  blsp:
+    image: blsp:latest
+    container_name: blsp
+    build: ./
+    tty: true
+    stdin_open: true
+    entrypoint: "/bin/bash"
+
