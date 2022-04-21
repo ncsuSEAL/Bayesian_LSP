@@ -31,9 +31,9 @@ FitBLSP <- function(date_vec, vi_vec,
     
     # Convert data to jags format
     y <- vi_vec
-    t <- as.numeric(date_vec - as.Date(paste0(year(date_vec), "-01-01"))) + 1
+    t <- as.numeric(date_vec - as.Date(paste0(lubridate::year(date_vec), "-01-01"))) + 1
     n <- length(y) # total num of observations
-    yr <- year(date_vec) - year(date_vec)[1] + 1 # year id vector
+    yr <- lubridate::year(date_vec) - lubridate::year(date_vec)[1] + 1 # year id vector
     numYears <- length(unique(yr))
 
     # If user specified weights
@@ -168,7 +168,7 @@ FitBLSP <- function(date_vec, vi_vec,
     m3_quan <- data.table::data.table(apply(m3, 2, quantile, c(0.05, 0.5, 0.95)))
     m5_quan <- data.table::data.table(apply(m5, 2, quantile, c(0.05, 0.5, 0.95)))
     
-    years <- sort(unique(year(date_vec)))
+    years <- sort(unique(lubridate::year(date_vec)))
     bf_phenos <- NULL
     for (i in 1:numYears) {
         if (m2_quan[2, ][[i]] > 0.4) { # suppress some amplitude-too-low year
@@ -196,7 +196,7 @@ FitBLSP <- function(date_vec, vi_vec,
         #~ Predict fitted value for full dates ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         model_str <- "m1 + (m2 - m7 * t) * ((1 / (1 + exp((m3 - t) / m4))) - 
             (1 / (1 + exp((m5 - t) / m6))))"
-        years <- sort(unique(year(date_vec)))
+        years <- sort(unique(lubridate::year(date_vec)))
         for (i in 1:numYears) { # i = 1
             date <- seq(as.Date(paste0(years[i], "-01-01")), 
                 as.Date(paste0(years[i], "-12-31")), by = "day")
