@@ -1,0 +1,42 @@
+---
+title: "Introduction to blsp"
+author: "Xiaojie Gao, Josh Gray, Brian Reich"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to blsp}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(blsp)
+```
+
+This vignette will walk you through the `blsp` package and how to use it. For the source code, please visit the [github repository](https://github.com/MrJGao/Bayesian_LSP).
+
+# Background
+The package was developed by [Gao et al 2021](https://www.sciencedirect.com/science/article/pii/S0034425721002029?via%3Dihub), whose paper detailed a Bayesian hierarchical model to quantify land-surface phenology from sparse, optical remote sensing time series. In other words, the model is able to take sparse EVI observations from the entirety of the Landsat time series (for example), and create a continuous estimate of land surface phenology. In addition to calculating start of season (SOS) and end of season (EOS) dates, the model also calculated pixel-wise uncertainty estimates for each of these phenometrics.
+
+# Running the code
+## Set-up
+As an example dataset, we will use the `test_ts` dataset, which has EVI data calculated from Landsats 5-8 from 1984-2019. For each measurement, there is a corresponding QA value and snow flag (to be used for assigning weights).
+```{r set-up 1}
+data(test_ts)
+```
+
+## Fitting the model
+The main function `FitBLSP` can be run out of the bag with the data. The results are stored in a list with two elements. First, "fitted" is a data table with the values for the plotted phenology curve and the confidence intervals, while "phenos" is a table containing the estimated DOY of midgreenup and midgreendown for each year contained in the test data, along with upper and lower bounds. If `ifplot` is kept as the default `FALSE`, then "fitted" will be NULL.
+```{r code 1}
+results <- FitBLSP(date_vec=test_ts$date, vi_vec=test_ts$all_evi, ifplot=TRUE)
+head(results$fitted)
+head(results$phenos)
+```
+
+Note that for the test data (~800 observations), this takes ~2-4 minutes to run.

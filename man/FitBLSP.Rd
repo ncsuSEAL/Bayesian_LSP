@@ -28,7 +28,9 @@ fitting the averaged model. It could also be \code{NULL}.}
 with CI will only be returned when \code{ifplot} is TRUE.}
 }
 \value{
-retrieved phenometrics for each year.
+A list of 2 data tables. \code{fitted} is the , while \code{phenos} contains the
+estimated DOY of midgreenup and midgreendown per year, with upper and lower
+confidence intervals. Note that \code{fitted} returns \code{NULL} if \code{ifplot} is FALSE.
 }
 \description{
 Bayesian mixed hierarchical land surface phenology model.
