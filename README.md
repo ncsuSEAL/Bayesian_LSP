@@ -1,21 +1,19 @@
 # Bayesian land surface phenology (BLSP) model
-A Bayesian hierarchical model that quantifies long-term annual land surface phenology from temporally sparse 30 m Landsat time series (well, it doesn't have to be Landsat).
+Welcome to the blsp R package for creating a Bayesian land surface phenology model. This is a hierarchical model that quantifies long-term annual land surface phenology from temporally sparse optical remote sensing time series (originally developed for 30 m Landsat time series).
 
-More details about the model please read the paper: [Long-term, medium spatial resolution annual land surface phenology with a Bayesian hierarchical model](https://doi.org/10.1016/j.rse.2021.112484)
+For a more in-depth description, please read the paper: [Long-term, medium spatial resolution annual land surface phenology with a Bayesian hierarchical model](https://doi.org/10.1016/j.rse.2021.112484)
 
 And the citation to this work is:
 > Gao, X., Gray, J. M., & Reich, B. J. (2021). Long-term, medium spatial resolution annual land surface phenology with a Bayesian hierarchical model. Remote Sensing of Environment, 261, 112484. https://doi.org/10.1016/j.rse.2021.112484
 
-
 ## Note:
-We are currently (11/12/2021) improving the computing speed of the BLSP algorithm, thanks to Matt Shisler and Dr. Brian Reich's help. Be sure to watch or star this repo to keep up with our updates.
-
+We are currently (as of Apr 2022) improving the computing speed of the BLSP algorithm, thanks to Matt Shisler and Dr. Brian Reich's help. Be sure to watch or star this repo to keep up with our updates.
 
 ## Installation
-The scripts are written in R programming language and use JAGS software to conduct the MCMC sampling for the Bayesian model. To run the scripts, users should install R along with some packages and JAGS.
+The scripts are written in R programming language and use JAGS software to conduct the MCMC sampling for the Bayesian model. To run the scripts, users need to install certain dependencies, the JAGS software, and the blsp package itself.
 
-### R
-We use R v3.6.2. Although it should not be limited to this R version, but all of the scripts were tested under v3.6.2.
+### R dependencies
+The original code was developed using R v3.6.2, and has been tested on 4.1.1.
 Required R packages are:
 * `data.table` - most of the data in the scripts are processed by functions of data.table. Well, I like data.table!
 * `rjags` - for communicating with JAGS software.
@@ -25,13 +23,12 @@ Required R packages are:
 * `lubridate` - for easy parsing date strings.
 
 ### JAGS
-See the website: http://mcmc-jags.sourceforge.net/
+Please visit the [JAGS website](http://mcmc-jags.sourceforge.net/) for installation. Specifically, we tested the code using JAGS v4.3.0. Once it is installed, users do not need to interact with the software as all communication will be conducted via R.
 
-We use JAGS v4.3.0. Again, it should not be limited to this JAGS version, but all of the scripts were tested under v4.3.0.
-Users can download and install JAGS from this webpage. To use our scripts, there's no need to know how to use JAGS, actually after installation, users don't even need to open JAGS, we'll use R code to communitate with it.
+### bslp package installation
+To install this package, please run `devtools::install_github("MrJGao/Bayesian_LSP")` in an R session. Afterwards, you can call the package using `library(blsp)`. 
 
 ## Run the model
-
 There are 3 files in the respository's `Code` folder:
 * base.R
 * Bayesian_LSP_fit.R
