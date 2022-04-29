@@ -1,9 +1,7 @@
-# Bayesian land surface phenology (BLSP) model
+# blsp: Bayesian land surface phenology model
 Welcome to the blsp R package for creating a Bayesian land surface phenology model. This is a hierarchical model that quantifies long-term annual land surface phenology from temporally sparse optical remote sensing time series (originally developed for 30 m Landsat time series).
 
-For a more in-depth description, please read the paper: [Long-term, medium spatial resolution annual land surface phenology with a Bayesian hierarchical model](https://doi.org/10.1016/j.rse.2021.112484)
-
-And the citation to this work is:
+For a more in-depth description, please read the paper: [Long-term, medium spatial resolution annual land surface phenology with a Bayesian hierarchical model](https://doi.org/10.1016/j.rse.2021.112484), with the citation:
 > Gao, X., Gray, J. M., & Reich, B. J. (2021). Long-term, medium spatial resolution annual land surface phenology with a Bayesian hierarchical model. Remote Sensing of Environment, 261, 112484. https://doi.org/10.1016/j.rse.2021.112484
 
 ## Note:
@@ -63,3 +61,9 @@ You can enter the container directly by running
 docker exec -ti blsp bash
 ```
 
+# Acknowledgments
+We thank the following people for their assitance with the creation of this package:
+- Matt Shisler: optimization of the MCMC code
+- [Isabella Hinks](https://github.com/iHinks): translation of MCMC code to C++
+- [Owen Smith](https://github.com/ocsmit): development of Docker container
+- [Ian McGregor](https://github.com/mcgregorian1): package development, documentation, and vignette
