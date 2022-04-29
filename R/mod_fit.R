@@ -20,19 +20,7 @@
 #' estimated DOY of midgreenup and midgreendown per year, with upper and lower
 #' confidence intervals. Note that `fitted` returns `NULL` if `ifplot` is FALSE.
 #' @export 
-#' @import coda
 #' @import data.table
-#' @import geojsonio
-#' @import geojsonR
-#' @import getPass
-#' @import httr
-#' @import jsonlite
-#' @import lubridate
-#' @import minpack.lm
-#' @import rgdal
-#' @import rjags
-#' @import tools
-#' @import viridis
 FitBLSP <- function(date_vec, vi_vec, 
     weights_vec = NULL, initValues = NULL, 
     ifplot = FALSE
