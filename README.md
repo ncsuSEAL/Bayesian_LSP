@@ -12,10 +12,10 @@ We are currently (11/12/2021) improving the computing speed of the BLSP algorith
 
 
 ## Installation
-The scripts are written in R programming language and use JAGS software to conduct the MCMC sampling for the Bayesian model. To run the scripts, users should install R along with some packages and JAGS. 
+The scripts are written in R programming language and use JAGS software to conduct the MCMC sampling for the Bayesian model. To run the scripts, users should install R along with some packages and JAGS.
 
-### R 
-We use R v3.6.2. Although it should not be limited to this R version, but all of the scripts were tested under v3.6.2. 
+### R
+We use R v3.6.2. Although it should not be limited to this R version, but all of the scripts were tested under v3.6.2.
 Required R packages are:
 * `data.table` - most of the data in the scripts are processed by functions of data.table. Well, I like data.table!
 * `rjags` - for communicating with JAGS software.
@@ -41,9 +41,9 @@ There are 3 files in the respository's `Code` folder:
 
 `test_ts.Rds` is a cached R dataset file. It contains a Landsat EVI2 time series with columns including date and EVI2 value. Users can use the test data to quickly run the Bayesian model.
 
-`Bayesian_LSP_fit.R` is easy to understand and run. The only thing need to do before running the script is changing the working directory specified in `setwd()` function, make sure the script can find the `base.R` file and `test_ts.Rds` file. After running the script, there will be a plot showing the result of LSP fit and a table that contains all retreived phenometrics. 
+`Bayesian_LSP_fit.R` is easy to understand and run. The only thing need to do before running the script is changing the working directory specified in `setwd()` function, make sure the script can find the `base.R` file and `test_ts.Rds` file. After running the script, there will be a plot showing the result of LSP fit and a table that contains all retreived phenometrics.
 
-Detail information about the model can be found in the paper. 
+Detail information about the model can be found in the paper.
 
 Program result - Model fit:
 
@@ -54,4 +54,15 @@ Program result - Retrieved phenos:
 <img src="img/model_fit_phenos.png" alt="" width="500"/>
 
 
+# Docker
+The BLSP docker container installs the required R packages and JAGS.
+Assuming that both docker and docker-compose are installed, the container can
+be built and started from the CLI by running
+```bash
+cd scripts && ./build.sh
+```
+You can enter the container directly by running
+```bash
+docker exec -ti blsp bash
+```
 
