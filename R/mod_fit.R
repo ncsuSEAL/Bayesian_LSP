@@ -225,7 +225,7 @@ FitBLSP <- function(date_vec, vi_vec,
                 predCI <- cbind(predCI, pred)
             }
 
-            predCI <- t(data.table(
+            predCI <- t(data.table::data.table(
                 apply(predCI, 1, function(x) {
                     quantile(x, c(0.025, 0.975))
                 }
