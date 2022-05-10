@@ -5,8 +5,8 @@
 
 # Test `FitAvgModel`
 test_that("Fitting the average model works", {
-    data(test_ts)
-    avg_mod <- FitAvgModel(test_ts$date, test_ts$all_evi)
+    data(landsatEVI2)
+    avg_mod <- FitAvgModel(landsatEVI2$date, landsatEVI2$evi2)
     expect_type(avg_mod, "list")
 
     est_coef <- coef(avg_mod)
@@ -34,12 +34,12 @@ test_that("Phenometrics retrieval works", {
 test_that("BLSP model works", {
     skip_on_cran()
 
-    data(test_ts)
-    model_init <- FitAvgModel(test_ts$date, test_ts$all_evi)
+    data(landsatEVI2)
+    model_init <- FitAvgModel(landsatEVI2$date, landsatEVI2$evi2)
     bf_fit <- FitBLSP(
-        date_vec = test_ts$date,
-        vi_vec = test_ts$all_evi,
-        weights_vec = ifelse(test_ts$snow == TRUE, 0.1, 1),
+        date_vec = landsatEVI2$date,
+        vi_vec = landsatEVI2$evi2,
+        weights_vec = ifelse(landsatEVI2$snow == TRUE, 0.1, 1),
         initValues = model_init,
         ifplot = FALSE
     )
