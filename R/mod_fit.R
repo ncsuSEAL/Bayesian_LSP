@@ -16,14 +16,18 @@
 #' fitting the averaged model. It could also be `NULL`.
 #' @param ifplot: logical. Plot the model fit if TRUE. Note that the fitted curve 
 #' with CI will only be returned when `ifplot` is TRUE.
+#' @param verbose: logical. If `TRUE`, the progress will be reported. By default, 
+#' it's `FALSE`.
 #' @return A list of 2 data tables. `fitted` is the , while `phenos` contains the 
 #' estimated DOY of midgreenup and midgreendown per year, with upper and lower
 #' confidence intervals. Note that `fitted` returns `NULL` if `ifplot` is FALSE.
 #' @export 
 #' @import data.table
 FitBLSP <- function(date_vec, vi_vec, 
-    weights_vec = NULL, initValues = NULL, 
-    ifplot = FALSE
+    weights_vec = NULL, 
+    initValues = NULL, 
+    ifplot = FALSE, 
+    verbose = FALSE
 ) {
     # Check if date_vec is in Date format
     if (sum(!is.na(lubridate::parse_date_time(date_vec, orders = "ymd"))) != 
@@ -110,18 +114,28 @@ FitBLSP <- function(date_vec, vi_vec,
 
     tryCatch(
         {
+            if (verbose) {
+                print("Initialize model...")
+            }
+            pb_type <- ifelse(verbose, "text", "none")
+
             model <- rjags::jags.model(textConnection(model_string),
                 data = data, inits = inits,
                 n.chains = 3, quiet = TRUE
             )
-            update(model, 2000, progress.bar = "none")
+            update(model, 2000, progress.bar = pb_type)
+
+            if (verbose) {
+                print("Start sampling...")
+            }
+
             iteration_times <- 0
             repeat {
                 samp <- rjags::coda.samples(model,
                     variable.names = c("m1", "m2", "m3", "m4", "m5", "m6", "m7"),
                     n.iter = 5000,
                     thin = 10,
-                    progress.bar = "none"
+                    progress.bar = pb_type
                 )
                 iteration_times <- iteration_times + 5000
                 
@@ -131,10 +145,12 @@ FitBLSP <- function(date_vec, vi_vec,
                     break
                 }
             }
-            print(iteration_times)
+            if (verbose) {
+                print(paste("total interation times:", iteration_times))
+            }
         },
         error = function(e) {
-            years <- sort(unique(year(landsat$date)))
+            years <- sort(unique(year(date_vec)))
             bf_phenos <- NULL
             for (i in 1:numYears) {
                 bf_phenos <- rbind(bf_phenos, list(
@@ -148,6 +164,9 @@ FitBLSP <- function(date_vec, vi_vec,
     )
 
     # ~ Retrieve parameter estimates
+    if (verbose) {
+        print("Estimate phenometrics...")
+    }
     m1 <- m2 <- m3 <- m4 <- m5 <- m6 <- m7 <- NULL
     for (i in 1:numYears) {
         m1 <- cbind(m1, c(samp[[1]][, paste0("m1", "[", i, "]")], 
@@ -196,11 +215,12 @@ FitBLSP <- function(date_vec, vi_vec,
     # Note: when plotting out the fit, the fitted curve with CI will be returned.
     bf_pred <- NULL
     if (ifplot == TRUE) { # fig: Bayesian Mixed model fit
+        if (verbose) {
+            print("Prepare data for plotting the figure...")
+        }
         #~ Predict fitted value for full dates ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        model_str <- "m1 + (m2 - m7 * t) * ((1 / (1 + exp((m3 - t) / m4))) - 
-            (1 / (1 + exp((m5 - t) / m6))))"
         years <- sort(unique(lubridate::year(date_vec)))
-        for (i in 1:numYears) { # i = 1
+        for (i in 1:numYears) {
             date <- seq(as.Date(paste0(years[i], "-01-01")), 
                 as.Date(paste0(years[i], "-12-31")), by = "day")
             bf_params <- data.table::data.table(m1 = m1[, i], m2 = m2[, i], 
@@ -285,6 +305,9 @@ FitBLSP <- function(date_vec, vi_vec,
             "*Observation transparency depends on weight")), cex = 0.8)
     }
 
+    if (verbose) {
+        print("Done!")
+    }
     return(list(fitted = bf_pred, phenos = bf_phenos))
 }
 

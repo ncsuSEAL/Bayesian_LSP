@@ -41,7 +41,8 @@ test_that("BLSP model works", {
         vi_vec = landsatEVI2$evi2,
         weights_vec = ifelse(landsatEVI2$snow == TRUE, 0.1, 1),
         initValues = model_init,
-        ifplot = FALSE
+        ifplot = FALSE, 
+        verbose = FALSE
     )
 
     expect_type(bf_fit, "list")
