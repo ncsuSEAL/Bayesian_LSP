@@ -44,7 +44,7 @@ jobs:
         r-version: ${{ matrix.r-version }}
      - name: Install dependencies
        run: |
-        install.packages(c("rjags", "data.table"))
+        install.packages(c("rjags", "data.table", "remote"))
         remotes::install_deps(dependencies = TRUE)
        shell: Rscript {0}
      - name: Check
