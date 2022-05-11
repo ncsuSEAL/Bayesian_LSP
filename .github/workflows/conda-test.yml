@@ -19,6 +19,9 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        r-version: ['3.6.3', '4.1.1']
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -32,3 +35,19 @@ jobs:
        shell: bash
        run: |
           conda install -c conda-forge jags
+   
+    # Steps to install R dependencies
+     - uses: actions/checkout@v3
+     - name: Set up R ${{ matrix.r-version }}
+       uses: r-lib/actions/setup-r@f57f1301a053485946083d7a45022b278929a78a
+       with:
+        r-version: ${{ matrix.r-version }}
+     - name: Install dependencies
+       run: |
+        install.packages(c("rjags", "data.table"))
+        remotes::install_deps(dependencies = TRUE)
+       shell: Rscript {0}
+     - name: Check
+       run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
+       shell: Rscript {0}
+
