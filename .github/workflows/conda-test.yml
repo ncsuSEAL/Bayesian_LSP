@@ -44,10 +44,17 @@ jobs:
         r-version: ${{ matrix.r-version }}
      - name: Install dependencies
        run: |
-        install.packages(c("rjags", "data.table", "remote"))
+        install.packages(c("rjags", "data.table", "remotes", "devtools"))
         remotes::install_deps(dependencies = TRUE)
        shell: Rscript {0}
      - name: Check
        run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
        shell: Rscript {0}
+     
+     - name: Unit test
+       run: |
+         devtools::load_all()
+         devtools::check()
+       shell: Rscript {0}
+       
 
