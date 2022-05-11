@@ -30,6 +30,6 @@ jobs:
     - name: Install dependencies
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
-        $CONDA/bin/conda env create -n test
+        $CONDA/bin/conda create --name test
         $CONDA/bin/conda activate test
         $CONDA/bin/conda install -c conda-forge jags
