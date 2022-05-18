@@ -35,9 +35,9 @@ snow <- landsatEVI2$snow
 ```
 
 ## Fitting the model
-At its core, all you need to run the main function (`FitBLSP`) is a vector of vegetation index data that follows a double logistic function (e.g. NDVI, EVI, EVI2), and the corresponding dates of the individual data points. With these, running the code is simple and runs quickly.
+At its core, all you need to run the main function (`FitBLSP`) is a vector of vegetation index data that follows a double logistic function (e.g. NDVI, EVI, EVI2), and the corresponding dates of the individual data points. With these, running the code is simple.
 ```{r code 1}
-results <- FitBLSP(date_vec=dates, vi_vec=evi2, ifplot=FALSE)
+results <- FitBLSP(date_vec=dates, vi_vec=evi2, verbose=TRUE)
 ```
 
 The results are stored in a list with two elements. First, "phenos" is a table containing the estimated DOY of midgreenup and midgreendown for each year contained in the sample data, along with upper and lower bounds. When `ifplot` is `TRUE`, "fitted" is a data table with the values for the plotted phenology curve and the confidence intervals; otherwise, it is `NULL`.
@@ -45,7 +45,7 @@ The results are stored in a list with two elements. First, "phenos" is a table c
 head(results$phenos)
 ```
 
-Let's plot the reconstruction of the EVI2 time series using the supplied data. Note that `ifplot=TRUE` takes significantly longer to run than before. This is because the function will try each combination of the parameters to predict the best fit curve, so it will need to predict `n` curves, with `n` = the number of provided observations.
+Let's plot the reconstruction of the EVI2 time series using the supplied data. This will take a bit longer to run as the function will try each combination of the parameters to predict the best fit curve, so it will need to predict `n` curves, with `n` = the number of provided observations.
 ```{r code 1}
 results <- FitBLSP(date_vec=dates, vi_vec=evi2, ifplot=TRUE)
 ```
@@ -61,7 +61,7 @@ Some users may want to assign different weights to certain observations. For exa
 weights <- ifelse(snow, 0.1, 1)
 ```
 
-Similar to plotting, adding in weights makes the code take significantly longer to run. The reason is that the downweighted observations can make the data more sparse than it already is (e.g., if some points have weight near 0, they would contribute little information), thus the Bayesian model needs more time to converge.
+Similar to plotting, adding in weights will make the code run longer. The reason is that the downweighted observations can make the data more sparse than it already is (e.g., if some points have weight near 0, they would contribute little information), thus the Bayesian model may need more time to converge.
 
 Compare the first few rows of "phenos" below with the previous results above.
 ```{r code 2}

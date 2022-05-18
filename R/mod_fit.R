@@ -5,21 +5,28 @@
 
 .datatable.aware = TRUE
 
-#' This function fits a Bayesian mixed hierarchical land surface phenology model to the supplied data (can be sparse), and returns phenometrics for the entire time frame. For further explanation, please see the vignette.
+#' Fit a Bayesian mixed hierarchical land surface phenology model.
 #' 
-#' @param date_vec The date vector, be sure to convert the vector to "Date" format 
-#' or use "yyyy-mm-dd" format string.
+#' This function fits a Bayesian mixed hierarchical land surface phenology model 
+#' to the supplied data (can be sparse), and returns phenometrics for the 
+#' entire time frame. For further explanation, please see the vignette.
+#' 
+#' @param date_vec The date vector, be sure to convert the vector to "Date" 
+#' format or use "yyyy-mm-dd" format string.
 #' @param vi_vec The vegetation index vector.
 #' @param weights_vec A numeric vector of same length as vi_vec specifying the weights for the supplied observations. Must be [0,1].
 #' @param initValues Initial values for MCMC sampling. We get these values from 
 #' fitting the averaged model. It could also be `NULL`.
-#' @param ifplot logical. Plot the model fit if TRUE. This must be TRUE in order to return the fitted curve data with confidence intervals.
-#' @param verbose: logical. If `TRUE`, the progress will be reported. By default, 
-#' it's `FALSE`.
-#' @return A list of 2 data tables. `fitted` contains the values for the plotted phenology curve and the associated confidence interval, while `phenos` contains the 
-#' estimated DOY of midgreenup and midgreendown per year, with upper and lower
-#' confidence intervals. Note that `fitted` returns `NULL` if `ifplot` is FALSE.
-#' #' @examples
+#' @param ifplot logical. Plot the model fit if TRUE. This must be TRUE 
+#' in order to return the fitted curve data with confidence intervals.
+#' @param verbose: logical. If `TRUE`, the progress will be reported. 
+#' By default, it's `FALSE`.
+#' @return A list of 2 data tables. `fitted` contains the values for the 
+#' plotted phenology curve and the associated confidence interval, 
+#' while `phenos` contains the estimated DOY of midgreenup and midgreendown 
+#' per year, with upper and lower confidence intervals. Note that `fitted` 
+#' returns `NULL` if `ifplot` is FALSE.
+#' @examples
 #' data(landsatEVI2)
 #' FitBLSP(date_vec=landsatEVI2$date, vi_vec=landsatEVI2$evi2)
 #' @export 
@@ -314,7 +321,8 @@ FitBLSP <- function(date_vec, vi_vec,
 
 
 #' Generate pheno from the predicted curve.
-#' Only supports Elmore model (The double-logistic model used in BLSP). This function is used inside the Fit_BLSP function.
+#' Only supports Elmore model (The double-logistic model used in BLSP). 
+#' This function is used inside the FitBLSP function.
 #' 
 #' @param equation The model equation.
 #' @param params The Parameter list.
@@ -387,7 +395,8 @@ GetPhenosIdx <- function(equation, params, t) {
 #' format or use "yyyy-mm-dd" format string.
 #' @param vi_vec The vegetation index vector.
 #' @param ifplot logical. Plot the model fit if TRUE.
-#' @return Model parameters to be used as MCMC initial parameters in the Fit_BLSP function.
+#' @return Model parameters to be used as MCMC initial parameters in 
+#' the FitBLSP function.
 #' @export 
 FitAvgModel <- function(date_vec, vi_vec, ifplot = FALSE) {
     # check if date_vec is in Date format

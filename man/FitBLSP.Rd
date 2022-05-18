@@ -2,7 +2,7 @@
 % Please edit documentation in R/mod_fit.R
 \name{FitBLSP}
 \alias{FitBLSP}
-\title{This function fits a Bayesian mixed hierarchical land surface phenology model to the supplied data (can be sparse), and returns phenometrics for the entire time frame. For further explanation, please see the vignette.}
+\title{Fit a Bayesian mixed hierarchical land surface phenology model.}
 \usage{
 FitBLSP(
   date_vec,
@@ -14,8 +14,8 @@ FitBLSP(
 )
 }
 \arguments{
-\item{date_vec}{The date vector, be sure to convert the vector to "Date" format
-or use "yyyy-mm-dd" format string.}
+\item{date_vec}{The date vector, be sure to convert the vector to "Date"
+format or use "yyyy-mm-dd" format string.}
 
 \item{vi_vec}{The vegetation index vector.}
 
@@ -24,19 +24,25 @@ or use "yyyy-mm-dd" format string.}
 \item{initValues}{Initial values for MCMC sampling. We get these values from
 fitting the averaged model. It could also be \code{NULL}.}
 
-\item{ifplot}{logical. Plot the model fit if TRUE. This must be TRUE in order to return the fitted curve data with confidence intervals.}
+\item{ifplot}{logical. Plot the model fit if TRUE. This must be TRUE
+in order to return the fitted curve data with confidence intervals.}
 
-\item{verbose:}{logical. If \code{TRUE}, the progress will be reported. By default,
-it's \code{FALSE}.}
+\item{verbose:}{logical. If \code{TRUE}, the progress will be reported.
+By default, it's \code{FALSE}.}
 }
 \value{
-A list of 2 data tables. \code{fitted} contains the values for the plotted phenology curve and the associated confidence interval, while \code{phenos} contains the
-estimated DOY of midgreenup and midgreendown per year, with upper and lower
-confidence intervals. Note that \code{fitted} returns \code{NULL} if \code{ifplot} is FALSE.
-#' @examples
-data(landsatEVI2)
-FitBLSP(date_vec=landsatEVI2$date, vi_vec=landsatEVI2$evi2)
+A list of 2 data tables. \code{fitted} contains the values for the
+plotted phenology curve and the associated confidence interval,
+while \code{phenos} contains the estimated DOY of midgreenup and midgreendown
+per year, with upper and lower confidence intervals. Note that \code{fitted}
+returns \code{NULL} if \code{ifplot} is FALSE.
 }
 \description{
-This function fits a Bayesian mixed hierarchical land surface phenology model to the supplied data (can be sparse), and returns phenometrics for the entire time frame. For further explanation, please see the vignette.
+This function fits a Bayesian mixed hierarchical land surface phenology model
+to the supplied data (can be sparse), and returns phenometrics for the
+entire time frame. For further explanation, please see the vignette.
+}
+\examples{
+data(landsatEVI2)
+FitBLSP(date_vec=landsatEVI2$date, vi_vec=landsatEVI2$evi2)
 }

@@ -15,7 +15,8 @@ format or use "yyyy-mm-dd" format string.}
 \item{ifplot}{logical. Plot the model fit if TRUE.}
 }
 \value{
-Model parameters to be used as MCMC initial parameters in the Fit_BLSP function.
+Model parameters to be used as MCMC initial parameters in
+the FitBLSP function.
 }
 \description{
 Fit the averaged model and get the model parameters.
