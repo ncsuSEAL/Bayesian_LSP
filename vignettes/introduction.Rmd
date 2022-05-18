@@ -22,21 +22,49 @@ library(blsp)
 This vignette will walk you through the `blsp` package and how to use it. For the source code, please visit the [github repository](https://github.com/MrJGao/Bayesian_LSP).
 
 # Background
-The package was developed by [Gao et al 2021](https://www.sciencedirect.com/science/article/pii/S0034425721002029?via%3Dihub), whose paper detailed a Bayesian hierarchical model to quantify land-surface phenology from sparse, optical remote sensing time series. In other words, the model is able to take sparse EVI observations from the entirety of the Landsat time series (for example), and create a continuous estimate of land surface phenology. In addition to calculating start of season (SOS) and end of season (EOS) dates, the model also calculated pixel-wise uncertainty estimates for each of these phenometrics.
+The package was developed by [Gao et al 2021](https://www.sciencedirect.com/science/article/pii/S0034425721002029?via%3Dihub), whose paper detailed a Bayesian hierarchical model to quantify land-surface phenology from disparate, optical remote sensing time series. In other words, the model is able to take sparse EVI observations from the entirety of the Landsat time series (for example), and create a continuous estimate of land surface phenology. In addition to calculating start of season (SOS) and end of season (EOS) dates, the model also calculated pixel-wise uncertainty estimates for each of these phenometrics.
 
 # Running the code
 ## Set-up
-As an example dataset, we will use the `test_ts` dataset, which has EVI data calculated from Landsats 5-8 from 1984-2019. For each measurement, there is a corresponding QA value and snow flag (to be used for assigning weights).
+As an example dataset, we will use the `landsatEVI2` dataset, which has EVI data calculated from Landsats 5-8 from 1984-2019. For each measurement, there is a corresponding, boolean snow flag (to be used for assigning weights).
 ```{r set-up 1}
-data(test_ts)
+data(landsatEVI2)
+evi2 <- landsatEVI2$evi2
+dates <- landsatEVI2$date
+snow <- landsatEVI2$snow
 ```
 
 ## Fitting the model
-The main function `FitBLSP` can be run out of the bag with the data. The results are stored in a list with two elements. First, "fitted" is a data table with the values for the plotted phenology curve and the confidence intervals, while "phenos" is a table containing the estimated DOY of midgreenup and midgreendown for each year contained in the test data, along with upper and lower bounds. If `ifplot` is kept as the default `FALSE`, then "fitted" will be NULL.
+At its core, all you need to run the main function (`FitBLSP`) is a vector of vegetation index data that follows a double logistic function (e.g. NDVI, EVI, EVI2), and the corresponding dates of the individual data points. With these, running the code is simple and runs quickly.
 ```{r code 1}
-results <- FitBLSP(date_vec=test_ts$date, vi_vec=test_ts$all_evi, ifplot=TRUE)
-head(results$fitted)
+results <- FitBLSP(date_vec=dates, vi_vec=evi2, ifplot=FALSE)
+```
+
+The results are stored in a list with two elements. First, "phenos" is a table containing the estimated DOY of midgreenup and midgreendown for each year contained in the sample data, along with upper and lower bounds. When `ifplot` is `TRUE`, "fitted" is a data table with the values for the plotted phenology curve and the confidence intervals; otherwise, it is `NULL`.
+```{r code 2}
 head(results$phenos)
 ```
 
-Note that for the test data (~800 observations), this takes ~2-4 minutes to run.
+Let's plot the reconstruction of the EVI2 time series using the supplied data. Note that `ifplot=TRUE` takes significantly longer to run than before. This is because the function will try each combination of the parameters to predict the best fit curve, so it will need to predict `n` curves, with `n` = the number of provided observations.
+```{r code 1}
+results <- FitBLSP(date_vec=dates, vi_vec=evi2, ifplot=TRUE)
+```
+
+We see that "fitted" is now a data table with the information used to construct the plot.
+```{r code 3}
+head(results$fitted)
+```
+
+### Changing weights
+Some users may want to assign different weights to certain observations. For example, perhaps the QA for several days is bad and we want to downweight those observations such that they contribute less to the posterior distribution. To add do so, we supply a vector of equal length to `vi_vec` in the range [0,1]. In the sample data, the `snow` column indicates the presence of snow for the corresponding dates. Here, we will assign weights of 0.1 to those observations.
+```{r code 4}
+weights <- ifelse(snow, 0.1, 1)
+```
+
+Similar to plotting, adding in weights makes the code take significantly longer to run. The reason is that the downweighted observations can make the data more sparse than it already is (e.g., if some points have weight near 0, they would contribute little information), thus the Bayesian model needs more time to converge.
+
+Compare the first few rows of "phenos" below with the previous results above.
+```{r code 2}
+results <- FitBLSP(date_vec=dates, vi_vec=evi2, weights_vec=weights)
+head(results$phenos)
+```
