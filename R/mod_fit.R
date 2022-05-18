@@ -5,22 +5,23 @@
 
 .datatable.aware = TRUE
 
-#' Bayesian mixed hierarchical land surface phenology model.
+#' This function fits a Bayesian mixed hierarchical land surface phenology model to the supplied data (can be sparse), and returns phenometrics for the entire time frame. For further explanation, please see the vignette.
 #' 
 #' @param date_vec The date vector, be sure to convert the vector to "Date" format 
 #' or use "yyyy-mm-dd" format string.
 #' @param vi_vec The vegetation index vector.
-#' @param weights_vec For specifying weights to observations. For example, 
-#' lower weights can be set to observations with snow. 
+#' @param weights_vec A numeric vector of same length as vi_vec specifying the weights for the supplied observations. Must be [0,1].
 #' @param initValues Initial values for MCMC sampling. We get these values from 
 #' fitting the averaged model. It could also be `NULL`.
-#' @param ifplot: logical. Plot the model fit if TRUE. Note that the fitted curve 
-#' with CI will only be returned when `ifplot` is TRUE.
+#' @param ifplot logical. Plot the model fit if TRUE. This must be TRUE in order to return the fitted curve data with confidence intervals.
 #' @param verbose: logical. If `TRUE`, the progress will be reported. By default, 
 #' it's `FALSE`.
-#' @return A list of 2 data tables. `fitted` is the , while `phenos` contains the 
+#' @return A list of 2 data tables. `fitted` contains the values for the plotted phenology curve and the associated confidence interval, while `phenos` contains the 
 #' estimated DOY of midgreenup and midgreendown per year, with upper and lower
 #' confidence intervals. Note that `fitted` returns `NULL` if `ifplot` is FALSE.
+#' #' @examples
+#' data(landsatEVI2)
+#' FitBLSP(date_vec=landsatEVI2$date, vi_vec=landsatEVI2$evi2)
 #' @export 
 #' @import data.table
 FitBLSP <- function(date_vec, vi_vec, 
@@ -313,12 +314,12 @@ FitBLSP <- function(date_vec, vi_vec,
 
 
 #' Generate pheno from the predicted curve.
-#' Only supports Elmore model (The double-logistic model used in BLSP).
+#' Only supports Elmore model (The double-logistic model used in BLSP). This function is used inside the Fit_BLSP function.
 #' 
 #' @param equation The model equation.
 #' @param params The Parameter list.
 #' @param t Date vector.
-#' @return The phenological timing.
+#' @return The phenological timing in day of year (DOY)
 GetPhenosIdx <- function(equation, params, t) {
     y <- eval(equation, envir = list(
         m1 = params$m1, m2 = params$m2, m3 = params$m3, m4 = params$m4,
@@ -386,6 +387,7 @@ GetPhenosIdx <- function(equation, params, t) {
 #' format or use "yyyy-mm-dd" format string.
 #' @param vi_vec The vegetation index vector.
 #' @param ifplot logical. Plot the model fit if TRUE.
+#' @return Model parameters to be used as MCMC initial parameters in the Fit_BLSP function.
 #' @export 
 FitAvgModel <- function(date_vec, vi_vec, ifplot = FALSE) {
     # check if date_vec is in Date format

@@ -2,14 +2,15 @@
 % Please edit documentation in R/mod_fit.R
 \name{FitBLSP}
 \alias{FitBLSP}
-\title{Bayesian mixed hierarchical land surface phenology model.}
+\title{This function fits a Bayesian mixed hierarchical land surface phenology model to the supplied data (can be sparse), and returns phenometrics for the entire time frame. For further explanation, please see the vignette.}
 \usage{
 FitBLSP(
   date_vec,
   vi_vec,
   weights_vec = NULL,
   initValues = NULL,
-  ifplot = FALSE
+  ifplot = FALSE,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -18,20 +19,24 @@ or use "yyyy-mm-dd" format string.}
 
 \item{vi_vec}{The vegetation index vector.}
 
-\item{weights_vec}{For specifying weights to observations. For example,
-lower weights can be set to observations with snow.}
+\item{weights_vec}{A numeric vector of same length as vi_vec specifying the weights for the supplied observations. Must be \link{0,1}.}
 
 \item{initValues}{Initial values for MCMC sampling. We get these values from
 fitting the averaged model. It could also be \code{NULL}.}
 
-\item{ifplot:}{logical. Plot the model fit if TRUE. Note that the fitted curve
-with CI will only be returned when \code{ifplot} is TRUE.}
+\item{ifplot}{logical. Plot the model fit if TRUE. This must be TRUE in order to return the fitted curve data with confidence intervals.}
+
+\item{verbose:}{logical. If \code{TRUE}, the progress will be reported. By default,
+it's \code{FALSE}.}
 }
 \value{
-A list of 2 data tables. \code{fitted} is the , while \code{phenos} contains the
+A list of 2 data tables. \code{fitted} contains the values for the plotted phenology curve and the associated confidence interval, while \code{phenos} contains the
 estimated DOY of midgreenup and midgreendown per year, with upper and lower
 confidence intervals. Note that \code{fitted} returns \code{NULL} if \code{ifplot} is FALSE.
+#' @examples
+data(landsatEVI2)
+FitBLSP(date_vec=landsatEVI2$date, vi_vec=landsatEVI2$evi2)
 }
 \description{
-Bayesian mixed hierarchical land surface phenology model.
+This function fits a Bayesian mixed hierarchical land surface phenology model to the supplied data (can be sparse), and returns phenometrics for the entire time frame. For further explanation, please see the vignette.
 }

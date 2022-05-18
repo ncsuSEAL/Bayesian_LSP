@@ -3,7 +3,7 @@
 \name{GetPhenosIdx}
 \alias{GetPhenosIdx}
 \title{Generate pheno from the predicted curve.
-Only supports Elmore model (The double-logistic model used in BLSP).}
+Only supports Elmore model (The double-logistic model used in BLSP). This function is used inside the Fit_BLSP function.}
 \usage{
 GetPhenosIdx(equation, params, t)
 }
@@ -15,9 +15,9 @@ GetPhenosIdx(equation, params, t)
 \item{t}{Date vector.}
 }
 \value{
-The phenological timing.
+The phenological timing in day of year (DOY)
 }
 \description{
 Generate pheno from the predicted curve.
-Only supports Elmore model (The double-logistic model used in BLSP).
+Only supports Elmore model (The double-logistic model used in BLSP). This function is used inside the Fit_BLSP function.
 }
