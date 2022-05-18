@@ -19,7 +19,7 @@ format or use "yyyy-mm-dd" format string.}
 
 \item{vi_vec}{The vegetation index vector.}
 
-\item{weights_vec}{A numeric vector of same length as vi_vec specifying the weights for the supplied observations. Must be \link{0,1}.}
+\item{weights_vec}{A numeric vector of same length as vi_vec specifying the weights for the supplied observations. Must be between 0 and 1, inclusive.}
 
 \item{initValues}{Initial values for MCMC sampling. We get these values from
 fitting the averaged model. It could also be \code{NULL}.}
@@ -27,8 +27,7 @@ fitting the averaged model. It could also be \code{NULL}.}
 \item{ifplot}{logical. Plot the model fit if TRUE. This must be TRUE
 in order to return the fitted curve data with confidence intervals.}
 
-\item{verbose:}{logical. If \code{TRUE}, the progress will be reported.
-By default, it's \code{FALSE}.}
+\item{verbose}{logical. If \code{TRUE}, the progress will be reported.}
 }
 \value{
 A list of 2 data tables. \code{fitted} contains the values for the

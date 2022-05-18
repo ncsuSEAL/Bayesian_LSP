@@ -14,13 +14,12 @@
 #' @param date_vec The date vector, be sure to convert the vector to "Date" 
 #' format or use "yyyy-mm-dd" format string.
 #' @param vi_vec The vegetation index vector.
-#' @param weights_vec A numeric vector of same length as vi_vec specifying the weights for the supplied observations. Must be [0,1].
+#' @param weights_vec A numeric vector of same length as vi_vec specifying the weights for the supplied observations. Must be between 0 and 1, inclusive.
 #' @param initValues Initial values for MCMC sampling. We get these values from 
 #' fitting the averaged model. It could also be `NULL`.
 #' @param ifplot logical. Plot the model fit if TRUE. This must be TRUE 
 #' in order to return the fitted curve data with confidence intervals.
-#' @param verbose: logical. If `TRUE`, the progress will be reported. 
-#' By default, it's `FALSE`.
+#' @param verbose logical. If `TRUE`, the progress will be reported.
 #' @return A list of 2 data tables. `fitted` contains the values for the 
 #' plotted phenology curve and the associated confidence interval, 
 #' while `phenos` contains the estimated DOY of midgreenup and midgreendown 
