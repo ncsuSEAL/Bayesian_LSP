@@ -7,6 +7,11 @@ For a more in-depth description, please read the paper: [Long-term, medium spati
 ```
 For the exact version in the paper, please go to the `release/reproduce_paper` branch.
 ```
+## Updating the package (move this before fully finishing)
+Once you have updated the `.R` files with documentation, run `devtools::document()`, which will update the readonly files. Push the changes to github, then re-install the package.
+
+### bslp package installation
+To install this package, please run `devtools::install_github("MrJGao/Bayesian_LSP")` in an R session. Afterwards, you can call the package using `library(blsp)`. 
 
 ## Note:
 We are currently (as of Apr 2022) improving the computing speed of the BLSP algorithm, thanks to Matt Shisler and Dr. Brian Reich's help. Be sure to watch or star this repo to keep up with our updates.
@@ -26,9 +31,6 @@ Required R packages are:
 
 ### JAGS
 Please visit the [JAGS website](http://mcmc-jags.sourceforge.net/) for installation. Specifically, we tested the code using JAGS v4.3.0. Once it is installed, users do not need to interact with the software as all communication will be conducted via R.
-
-### bslp package installation
-To install this package, please run `devtools::install_github("MrJGao/Bayesian_LSP")` in an R session. Afterwards, you can call the package using `library(blsp)`. 
 
 ## Run the model
 There are 3 files in the respository's `Code` folder:
