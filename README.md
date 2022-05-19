@@ -11,7 +11,7 @@ For the exact version in the paper, please go to the `release/reproduce_paper` b
 Once you have updated the `.R` files with documentation or new code, run `devtools::document()`, which will update the readonly files. Push the changes to github, then re-install the package.
 
 ## How to install blsp package in R
-To install this package, please run `devtools::install_github("MrJGao/Bayesian_LSP")` in an R session. Afterwards, you can call the package using `library(blsp)`. 
+To install this package, please run `devtools::install_github("ncsuSEAL/Bayesian_LSP")` in an R session. Afterwards, you can call the package using `library(blsp)`. 
 
 ## Note:
 We are currently (as of Apr 2022) improving the computing speed of the BLSP algorithm, thanks to Matt Shisler and Dr. Brian Reich's help. Be sure to watch or star this repo to keep up with our updates.
