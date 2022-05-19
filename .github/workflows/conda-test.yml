@@ -4,7 +4,8 @@ name: Conda env for R test
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
+  # Triggers the workflow on push or pull request events but only for the main
+  # branch
   push:
     branches: [ main ]
   pull_request:
@@ -13,7 +14,8 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+# A workflow run is made up of one or more jobs that can run sequentially or in
+# parallel
 jobs:
   # This workflow contains a single job called "build"
   build:
@@ -23,7 +25,8 @@ jobs:
       matrix:
         r-version: ['3.6.3', '4.1.1']
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    # Steps represent a sequence of tasks that will be executed as part of the
+    # job
     steps:
      - uses: actions/checkout@v2
      - uses: conda-incubator/setup-miniconda@v2
@@ -31,11 +34,11 @@ jobs:
           activate-environment: test
           python-version: 3.8
           auto-activate-base: false
-     - name: Run tests
+     - name: install jags
        shell: bash
        run: |
-          conda install -c conda-forge jags
-   
+          sudo apt-get install -y jags
+
     # Steps to install R dependencies
      - uses: actions/checkout@v3
      - name: Set up R ${{ matrix.r-version }}
@@ -45,5 +48,6 @@ jobs:
      - name: Install dependencies
        run: |
         install.packages(c("rjags", "data.table"))
-       shell: Rscript {0}       
+       shell: Rscript {0}
+
 
