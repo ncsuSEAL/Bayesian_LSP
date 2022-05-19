@@ -8,7 +8,7 @@ For a more in-depth description, please read the paper: [Long-term, medium spati
 For the exact version in the paper, please go to the `release/reproduce_paper` branch.
 ```
 ## Updating the package (move this before fully finishing)
-Once you have updated the `.R` files with documentation, run `devtools::document()`, which will update the readonly files. Push the changes to github, then re-install the package.
+Once you have updated the `.R` files with documentation or new code, run `devtools::document()`, which will update the readonly files. Push the changes to github, then re-install the package.
 
 ## How to install blsp package in R
 To install this package, please run `devtools::install_github("MrJGao/Bayesian_LSP")` in an R session. Afterwards, you can call the package using `library(blsp)`. 
