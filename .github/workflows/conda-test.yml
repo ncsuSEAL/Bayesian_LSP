@@ -47,7 +47,13 @@ jobs:
         r-version: ${{ matrix.r-version }}
      - name: Install dependencies
        run: |
-        install.packages(c("rjags", "data.table"))
+        install.packages(c("rjags", "data.table", "devtools"))
        shell: Rscript {0}
+       
+     - name: Load package and run test
+       run: |
+         devtools::load_all()
+         devtools::check()
+        
 
 
