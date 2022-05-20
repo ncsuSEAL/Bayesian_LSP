@@ -38,10 +38,15 @@ jobs:
        shell: bash
        run: |
           sudo apt-get install -y jags \
-                                  gdal-bin \
                                   libcurl4-openssl-dev \
                                   libssl-dev \
-                                  libxml2-dev
+                                  libxml2-dev \
+                                  libudunits2-dev \
+                                  libprotobuf-dev \
+                                  libjq-dev \
+                                  #libgeos-dev \
+                                  #gdal-bin \
+
 
     # Steps to install R dependencies
      - uses: actions/checkout@v3

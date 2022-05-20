@@ -10,7 +10,6 @@ pkgs <- c(
           "devtools",
           "geojsonio",
           "geojsonR",
-          "rgdal",
           "getPass",
           "minpack.lm"
           )
