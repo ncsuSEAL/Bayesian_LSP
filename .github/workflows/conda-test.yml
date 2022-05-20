@@ -34,10 +34,10 @@ jobs:
           activate-environment: test
           python-version: 3.8
           auto-activate-base: false
-     - name: install jags
+     - name: install system dependencies
        shell: bash
        run: |
-          sudo apt-get install -y jags
+          sudo apt-get install -y jags libcurl4-openssl-dev libssl-dev libxml2-dev
 
     # Steps to install R dependencies
      - uses: actions/checkout@v3
@@ -47,8 +47,7 @@ jobs:
         r-version: ${{ matrix.r-version }}
      - name: Install dependencies
        run: |
-         conda install -c conda-forge r-rjags r-data.table r-devtools
-         #install.packages(c("rjags", "data.table", "devtools"))
+         install.packages(c("rjags", "data.table", "devtools"))
        shell: Rscript {0}
 
      - name: Load package and run test
