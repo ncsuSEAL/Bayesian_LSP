@@ -51,7 +51,7 @@ jobs:
         r-version: ${{ matrix.r-version }}
      - name: Install dependencies
        run: |
-         requirements/requirements.R
+         ./requirements/requirements.R
        shell: Rscript {0}
 
      - name: Load package and run test
