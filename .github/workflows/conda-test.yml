@@ -52,15 +52,10 @@ jobs:
        with:
         r-version: ${{ matrix.r-version }}
 
-     - name: check working dir
-       run: |
-         pwd
-       shell: bash
-
      - name: Install dependencies
        run: |
-         "./requirements/requirements.R"
-       shell: Rscript {0}
+         Rscript ./requirements/requirements.R
+       shell: bash
 
      - name: Load package and run test
        run: |
