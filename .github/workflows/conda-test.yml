@@ -2,6 +2,8 @@
 
 name: Conda env for R test
 
+defaults:
+
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the main
@@ -49,9 +51,15 @@ jobs:
        uses: r-lib/actions/setup-r@f57f1301a053485946083d7a45022b278929a78a
        with:
         r-version: ${{ matrix.r-version }}
+
+     - name: check working dir
+       run: |
+         pwd
+       shell: bash
+
      - name: Install dependencies
        run: |
-         ./requirements/requirements.R
+         "./requirements/requirements.R"
        shell: Rscript {0}
 
      - name: Load package and run test
