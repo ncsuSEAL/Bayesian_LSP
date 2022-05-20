@@ -47,9 +47,10 @@ jobs:
         r-version: ${{ matrix.r-version }}
      - name: Install dependencies
        run: |
-        install.packages(c("rjags", "data.table", "devtools"))
+         conda install -c conda-forge r-rjags r-data.table r-devtools
+         #install.packages(c("rjags", "data.table", "devtools"))
        shell: Rscript {0}
-       
+
      - name: Load package and run test
        run: |
          devtools::load_all()
