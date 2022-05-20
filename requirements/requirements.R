@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 pkgs <- c(
           "data.table",
           "rjags",
