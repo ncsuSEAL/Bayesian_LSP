@@ -37,7 +37,11 @@ jobs:
      - name: install system dependencies
        shell: bash
        run: |
-          sudo apt-get install -y jags libcurl4-openssl-dev libssl-dev libxml2-dev
+          sudo apt-get install -y jags \
+                                  gdal-bin \
+                                  libcurl4-openssl-dev \
+                                  libssl-dev \
+                                  libxml2-dev
 
     # Steps to install R dependencies
      - uses: actions/checkout@v3
@@ -47,7 +51,7 @@ jobs:
         r-version: ${{ matrix.r-version }}
      - name: Install dependencies
        run: |
-         install.packages(c("rjags", "data.table", "devtools"))
+         requirements/requirements.R
        shell: Rscript {0}
 
      - name: Load package and run test

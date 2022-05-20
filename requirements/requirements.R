@@ -4,7 +4,13 @@ pkgs <- c(
           "minpack.lm",
           "RColorBrewer",
           "viridis",
-          "lubridate"
+          "lubridate",
+          "devtools",
+          "geojsonio",
+          "geojsonR",
+          "rgdal",
+          "getPass",
+          "minpack.lm"
           )
 
 install.packages(pkgs, repos='http://cran.us.r-project.org')
