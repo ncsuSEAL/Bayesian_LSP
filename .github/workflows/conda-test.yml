@@ -56,7 +56,7 @@ jobs:
 
      - name: Load package and run test
        run: |
-         devtools::load_all()
+         devtools::test()
        shell: Rscript {0}
 
 

@@ -8,4 +8,5 @@ protobuf-compiler
 libjq-dev
 libgeos-dev
 libgdal-dev
+libv8-dev
 
