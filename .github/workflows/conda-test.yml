@@ -37,16 +37,10 @@ jobs:
      - name: install system dependencies
        shell: bash
        run: |
-          sudo apt-get install -y jags \
-                                  libcurl4-openssl-dev \
-                                  libssl-dev \
-                                  libxml2-dev \
-                                  libudunits2-dev \
-                                  libprotobuf-dev \
-                                  libjq-dev \
-                                  #libgeos-dev \
-                                  #gdal-bin \
-
+         sudo apt-get update -y
+         sudo apt-get install -y wget git gawk findutils
+         xargs -a <(awk '! /^ *(#|$)/' ".github/workflows/apt.txt") -r -- \
+              sudo apt-get install -y --no-install-recommends --no-install-suggests
 
     # Steps to install R dependencies
      - uses: actions/checkout@v3
