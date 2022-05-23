@@ -1,0 +1,62 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Ubuntu R
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main
+  # branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in
+# parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        r-version: ['3.6.3', '4.1.1']
+
+    # Steps represent a sequence of tasks that will be executed as part of the
+    # job
+    steps:
+     - uses: actions/checkout@v2
+     - uses: conda-incubator/setup-miniconda@v2
+       with:
+          activate-environment: test
+          python-version: 3.8
+          auto-activate-base: false
+     - name: install system dependencies
+       shell: bash
+       run: |
+         sudo apt-get update -y
+         sudo apt-get install -y wget git gawk findutils
+         xargs -a <(awk '! /^ *(#|$)/' ".github/workflows/apt.txt") -r -- \
+              sudo apt-get install -y --no-install-recommends --no-install-suggests
+
+    # Steps to install R dependencies
+     - uses: actions/checkout@v3
+     - name: Set up R ${{ matrix.r-version }}
+       uses: r-lib/actions/setup-r@f57f1301a053485946083d7a45022b278929a78a
+       with:
+        r-version: ${{ matrix.r-version }}
+
+     - name: Install dependencies
+       run: |
+         ./requirements/requirements.R
+       shell: bash
+
+     - name: Load package and run test
+       run: |
+         devtools::test()
+       shell: Rscript {0}
+
+
