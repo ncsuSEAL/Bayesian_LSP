@@ -122,7 +122,7 @@ FitBLSP <- function(date_vec, vi_vec,
     tryCatch(
         {
             if (verbose) {
-                print("Initialize model...")
+                message("Initialize model...")
             }
             pb_type <- ifelse(verbose, "text", "none")
 
@@ -133,7 +133,7 @@ FitBLSP <- function(date_vec, vi_vec,
             update(model, 2000, progress.bar = pb_type)
 
             if (verbose) {
-                print("Start sampling...")
+                message("Sampling (could have multiple chains)...")
             }
 
             iteration_times <- 0
@@ -153,7 +153,7 @@ FitBLSP <- function(date_vec, vi_vec,
                 }
             }
             if (verbose) {
-                print(paste("total interation times:", iteration_times))
+                message("total interation times:", iteration_times)
             }
         },
         error = function(e) {
@@ -172,7 +172,7 @@ FitBLSP <- function(date_vec, vi_vec,
 
     # ~ Retrieve parameter estimates
     if (verbose) {
-        print("Estimate phenometrics...")
+        message("Estimate phenometrics...")
     }
     m1 <- m2 <- m3 <- m4 <- m5 <- m6 <- m7 <- NULL
     for (i in 1:numYears) {
@@ -223,7 +223,7 @@ FitBLSP <- function(date_vec, vi_vec,
     bf_pred <- NULL
     if (ifplot == TRUE) { # fig: Bayesian Mixed model fit
         if (verbose) {
-            print("Prepare data for plotting the figure...")
+            message("Prepare data for plotting the figure...")
         }
         #~ Predict fitted value for full dates ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         years <- sort(unique(lubridate::year(date_vec)))
@@ -313,7 +313,7 @@ FitBLSP <- function(date_vec, vi_vec,
     }
 
     if (verbose) {
-        print("Done!")
+        message("Done!")
     }
     return(list(fitted = bf_pred, phenos = bf_phenos))
 }
