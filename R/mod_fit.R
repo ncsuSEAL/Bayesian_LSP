@@ -14,7 +14,8 @@
 #' @param date_vec The date vector, be sure to convert the vector to "Date" 
 #' format or use "yyyy-mm-dd" format string.
 #' @param vi_vec The vegetation index vector.
-#' @param weights_vec A numeric vector of same length as vi_vec specifying the weights for the supplied observations. Must be between 0 and 1, inclusive.
+#' @param weights_vec A numeric vector of same length as vi_vec specifying the 
+#' weights for the supplied observations. Must be between 0 and 1, inclusive.
 #' @param initValues Initial values for MCMC sampling. We get these values from 
 #' fitting the averaged model. It could also be `NULL`.
 #' @param ifplot logical. Plot the model fit if TRUE. This must be TRUE 
@@ -45,9 +46,12 @@ FitBLSP <- function(date_vec, vi_vec,
     
     # Convert data to jags format
     y <- vi_vec
-    t <- as.numeric(date_vec - as.Date(paste0(lubridate::year(date_vec), "-01-01"))) + 1
+    t <- as.numeric(
+        date_vec - as.Date(paste0(lubridate::year(date_vec), "-01-01"))
+    ) + 1
     n <- length(y) # total num of observations
-    yr <- lubridate::year(date_vec) - lubridate::year(date_vec)[1] + 1 # year id vector
+    # year id vector
+    yr <- lubridate::year(date_vec) - lubridate::year(date_vec)[1] + 1 
     numYears <- length(unique(yr))
 
     # If user specified weights

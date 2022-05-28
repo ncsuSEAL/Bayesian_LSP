@@ -1,6 +1,6 @@
 ---
 title: "Introduction to blsp"
-author: "Xiaojie Gao, Josh Gray, Brian Reich"
+author: "Xiaojie Gao, Ian R. McGregor, Owen Smith, Izzi Hinks, Matt Shisler"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Introduction to blsp}
@@ -19,14 +19,14 @@ knitr::opts_chunk$set(
 library(blsp)
 ```
 
-This vignette will walk you through the `blsp` package and how to use it. For the source code, please visit the [github repository](https://github.com/MrJGao/Bayesian_LSP).
+This vignette will walk you through the `blsp` package and how to use it. For the source code, please visit the [github repository](https://github.com/ncsuSEAL/Bayesian_LSP).
 
 # Background
-The package was developed by [Gao et al 2021](https://www.sciencedirect.com/science/article/pii/S0034425721002029?via%3Dihub), whose paper detailed a Bayesian hierarchical model to quantify land-surface phenology from disparate, optical remote sensing time series. In other words, the model is able to take sparse EVI observations from the entirety of the Landsat time series (for example), and create a continuous estimate of land surface phenology. In addition to calculating start of season (SOS) and end of season (EOS) dates, the model also calculated pixel-wise uncertainty estimates for each of these phenometrics.
+The package was developed by [Gao et al 2021](https://www.sciencedirect.com/science/article/pii/S0034425721002029?via%3Dihub), whose paper detailed a Bayesian hierarchical model to quantify land surface phenology from disparate, optical remote sensing time series. In other words, the model is able to take sparse vegetation index observations from the entirety of the Landsat time series (for example), and create a continuous estimate of annual land surface phenology. In addition to calculating start of season (SOS) and end of season (EOS) dates, the model also calculated pixel-wise uncertainty estimates for each of these phenometrics.
 
 # Running the code
 ## Set-up
-As an example dataset, we will use the `landsatEVI2` dataset, which has EVI data calculated from Landsats 5-8 from 1984-2019. For each measurement, there is a corresponding, boolean snow flag (to be used for assigning weights).
+As an example dataset, we will use the `landsatEVI2` dataset, which has EVI2 (two-band enhanced vegetation index, see [details](https://en.wikipedia.org/wiki/Enhanced_vegetation_index)) data calculated from Landsats 5-8 from 1984-2019. For each measurement, there is a corresponding, boolean snow flag (to be used for assigning weights).
 ```{r set-up 1}
 data(landsatEVI2)
 evi2 <- landsatEVI2$evi2
@@ -40,7 +40,7 @@ At its core, all you need to run the main function (`FitBLSP`) is a vector of ve
 results <- FitBLSP(date_vec=dates, vi_vec=evi2, verbose=TRUE)
 ```
 
-The results are stored in a list with two elements. First, "phenos" is a table containing the estimated DOY of midgreenup and midgreendown for each year contained in the sample data, along with upper and lower bounds. When `ifplot` is `TRUE`, "fitted" is a data table with the values for the plotted phenology curve and the confidence intervals; otherwise, it is `NULL`.
+The results are stored in a list with two elements. First, "phenos" is a table containing the estimated DOY of "midgreenup"(or SOS) and "midgreendown" (or EOS) for each year contained in the sample data, along with upper and lower bounds. When `ifplot` is `TRUE`, "fitted" is a data table with the values for the plotted phenology curve and the confidence intervals; otherwise, it is `NULL`.
 ```{r code 2}
 head(results$phenos)
 ```

@@ -69,7 +69,7 @@ docker exec -ti blsp bash
 
 # Acknowledgments
 We thank the following people for their assistance with the creation of this package:
-- Matt Shisler: optimization of the MCMC code
-- [Isabella Hinks](https://github.com/iHinks): translation of MCMC code to C++
+- [Matt Shisler](https://github.com/mattshisler): optimization of the MCMC code
+- [Isabella Hinks](https://github.com/iHinks): translation of MCMC code to C++ (the work hasn't been merged to this package, but will come soon.)
 - [Owen Smith](https://github.com/ocsmit): development of Docker container
 - [Ian McGregor](https://github.com/mcgregorian1): package development, documentation, and vignette
