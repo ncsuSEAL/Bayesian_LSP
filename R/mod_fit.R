@@ -43,7 +43,13 @@ FitBLSP <- function(date_vec, vi_vec,
     if (min(weights_vec) < 0 & max(weights_vec) > 1) {
         stop("Weights must be within [0, 1].")
     }
-    
+
+    # Check the length of dates, vis, and weights
+    if (length(weights_vec) != length(date_vec) |
+        length(vi_vec) != length(date_vec)) {
+        
+        stop("date_vec, vi_vec, and weights_vec have different lengths.")
+    }
     # Convert data to jags format
     y <- vi_vec
     t <- as.numeric(
