@@ -19,7 +19,8 @@ format or use "yyyy-mm-dd" format string.}
 
 \item{vi_vec}{The vegetation index vector.}
 
-\item{weights_vec}{A numeric vector of same length as vi_vec specifying the weights for the supplied observations. Must be between 0 and 1, inclusive.}
+\item{weights_vec}{A numeric vector of same length as vi_vec specifying the
+weights for the supplied observations. Must be between 0 and 1, inclusive.}
 
 \item{initValues}{Initial values for MCMC sampling. We get these values from
 fitting the averaged model. It could also be \code{NULL}.}

@@ -4,15 +4,13 @@
 \alias{FitAvgModel}
 \title{Fit the averaged model and get the model parameters.}
 \usage{
-FitAvgModel(date_vec, vi_vec, ifplot = FALSE)
+FitAvgModel(date_vec, vi_vec)
 }
 \arguments{
 \item{date_vec}{the date vector, be sure to convert the vector to "Date"
 format or use "yyyy-mm-dd" format string.}
 
 \item{vi_vec}{The vegetation index vector.}
-
-\item{ifplot}{logical. Plot the model fit if TRUE.}
 }
 \value{
 Model parameters to be used as MCMC initial parameters in

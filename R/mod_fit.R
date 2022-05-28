@@ -397,56 +397,29 @@ GetPhenosIdx <- function(equation, params, t) {
 #' @param date_vec the date vector, be sure to convert the vector to "Date" 
 #' format or use "yyyy-mm-dd" format string.
 #' @param vi_vec The vegetation index vector.
-#' @param ifplot logical. Plot the model fit if TRUE.
 #' @return Model parameters to be used as MCMC initial parameters in 
 #' the FitBLSP function.
 #' @export 
-FitAvgModel <- function(date_vec, vi_vec, ifplot = FALSE) {
-    # check if date_vec is in Date format
-    if (sum(!is.na(lubridate::parse_date_time(date_vec, orders = "ymd"))) != 
-        length(date_vec)) {
-        stop("There're invalid Date values in the `date_vec`! 
-            Be sure to use `yyyy-mm-dd` format.")
-    }
-    vi_dt <- data.table::data.table(date = as.Date(date_vec), evi = vi_vec)
-    vi_dt$avg_date <- as.Date(paste0("1970", substr(vi_dt$date, 5, 10)))
-    vi_dt <- na.omit(vi_dt)
-    vi_dt <- data.table::setorder(vi_dt, date)
+FitAvgModel <- function(date_vec, vi_vec) {
+    # Format data
+    avg_dt <- FormatAvgData(date_vec, vi_vec)
 
-    unique_dates <- unique(vi_dt$avg_date)
-
-    merge_dt <- sapply(unique_dates, function(x) {
-        # find how many records this day has
-        evi <- NA
-        find_idx <- which(x == vi_dt$avg_date)
-        if (length(find_idx) == 1) {
-            evi <- vi_dt[find_idx]$evi
-        } else if (length(find_idx) > 1) { # we have multiple values for this date
-            # compute the max
-            evi <- max(vi_dt[avg_date == x]$evi, na.rm = TRUE)
-        }
-        return(list(date = x, evi = evi))
-    })
-    merge_dt <- data.table::as.data.table(t(merge_dt))
-
+    # Unpack data
+    y <- unlist(avg_dt$evi2)
+    t <- unlist(avg_dt$date)
+    
+    # Fake year information for the averaged year
     cur_start_date <- as.Date("1970-01-01")
     cur_end_date <- as.Date("1970-12-31")
-
-    y <- unlist(merge_dt$evi)
-    t <- unlist(merge_dt$date)
     full_date <- seq(cur_start_date, cur_end_date, by = "day")
     full_t <- as.integer(full_date - cur_start_date + 1)
-
-    # Assign weights
-    wgt <- rep(1, length(t))
-    # wgt[merge_dt$snow == TRUE] <- 0.5
 
     # Fit model to get the prior
     avg_fit <- tryCatch(
         {
             model_equ <- as.formula(paste("VI", "~", model_str))
             minpack.lm::nlsLM(model_equ,
-                data = list(VI = y, t = as.integer(t)), weights = wgt, start = list(
+                data = list(VI = y, t = as.integer(t)), start = list(
                     m1 = 0.05, m2 = 1, m3 = 120, m4 = 6, m5 = 290, m6 = 8, 
                     m7 = 0.001), 
                     lower = c(0, 0.1, 1, 0, 1, 0, 0.00001), 
@@ -460,50 +433,8 @@ FitAvgModel <- function(date_vec, vi_vec, ifplot = FALSE) {
         }
     )
 
-    
-
-    if (ifplot == TRUE) {
-        pred <- NULL
-        phenos_idx <- NULL
-        phenos <- NULL
-        if (!is.null(avg_fit)) {
-            pred <- predict(avg_fit, newdata = list(t = full_t))
-            phenos_idx <- GetPhenosIdx(str2expression(model_str),
-                params = list(
-                    m1 = coef(avg_fit)["m1"], 
-                    m2 = coef(avg_fit)["m2"],
-                    m3 = coef(avg_fit)["m3"], 
-                    m4 = coef(avg_fit)["m4"], 
-                    m5 = coef(avg_fit)["m5"], 
-                    m6 = coef(avg_fit)["m6"], 
-                    m7 = coef(avg_fit)["m7"]
-                ),
-                t = full_t
-            )
-            phenos <- full_date[unlist(phenos_idx)]
-        }
-        
-        plot(vi_dt[, .(avg_date, evi)], pch = 16, col = "seagreen", 
-            xlab = "", ylab = "")
-        mtext(text = "Date", side = 1, line = 2)
-        mtext(text = "EVI2", side = 2, line = 2)
-    
-        lines(full_date, pred, col = "orange", lwd = 2)
-        points(full_date[phenos_idx$gup], pred[phenos_idx$gup], 
-            pch = 21, lwd = 2, cex = 1.5, bg = "red")
-        points(full_date[phenos_idx$midgup], pred[phenos_idx$midgup], 
-            pch = 21, lwd = 2, cex = 1.5, bg = "red")
-        points(full_date[phenos_idx$maturity], pred[phenos_idx$maturity], 
-            pch = 21, lwd = 2, cex = 1.5, bg = "red")
-        points(full_date[phenos_idx$peak], pred[phenos_idx$peak], 
-            pch = 21, lwd = 2, cex = 1.5, bg = "red")
-        points(full_date[phenos_idx$sene], pred[phenos_idx$sene], 
-            pch = 21, lwd = 2, cex = 1.5, bg = "red")
-        points(full_date[phenos_idx$midgdown], pred[phenos_idx$midgdown], 
-            pch = 21, lwd = 2, cex = 1.5, bg = "red")
-        points(full_date[phenos_idx$dormancy], pred[phenos_idx$dormancy], 
-            pch = 21, lwd = 2, cex = 1.5, bg = "red")
-    }
-
     return(avg_fit)
 }
+
+
+
