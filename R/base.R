@@ -3,6 +3,8 @@
 # Date: 2020-11-22
 #************************************************************************************
 
+.datatable.aware <- TRUE
+
 # The double-logistic function equation
 model_str <- "m1 + (m2 - m7 * t) * ((1 / (1 + exp((m3 - t) / m4))) -
             (1 / (1 + exp((m5 - t) / m6))))"
@@ -38,6 +40,7 @@ Transparent <- function(orig.col, alpha = 1, maxColorValue = 255) {
 #' format or use "yyyy-mm-dd" format string.
 #' @param vi_vec The vegetation index vector.
 #' @return A list that contains formated data.
+#' @import data.table
 FormatAvgData <- function(date_vec, vi_vec) {
     # Check if date_vec is in Date format
     if (sum(!is.na(lubridate::parse_date_time(date_vec, orders = "ymd"))) !=

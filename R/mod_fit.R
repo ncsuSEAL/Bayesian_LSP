@@ -3,8 +3,6 @@
 # Date: 2022-03-29
 #************************************************************************************
 
-.datatable.aware = TRUE
-
 #' Fit a Bayesian mixed hierarchical land surface phenology model.
 #' 
 #' This function fits a Bayesian mixed hierarchical land surface phenology model 
@@ -18,23 +16,20 @@
 #' weights for the supplied observations. Must be between 0 and 1, inclusive.
 #' @param initValues Initial values for MCMC sampling. We get these values from 
 #' fitting the averaged model. It could also be `NULL`.
-#' @param ifplot logical. Plot the model fit if TRUE. This must be TRUE 
-#' in order to return the fitted curve data with confidence intervals.
 #' @param verbose logical. If `TRUE`, the progress will be reported.
-#' @return A list of 2 data tables. `fitted` contains the values for the 
-#' plotted phenology curve and the associated confidence interval, 
-#' while `phenos` contains the estimated DOY of midgreenup and midgreendown 
-#' per year, with upper and lower confidence intervals. Note that `fitted` 
-#' returns `NULL` if `ifplot` is FALSE.
+#' @return An object of class `BlspFit` will be returned. The object contains the
+#' estimated spring and autumn phenometrics for each year, the generated model 
+#' parameter samples, and the input data.
 #' @examples
+#' \dontrun{
 #' data(landsatEVI2)
-#' FitBLSP(date_vec=landsatEVI2$date, vi_vec=landsatEVI2$evi2)
+#' blsp_fit <- FitBLSP(date_vec = landsatEVI2$date, vi_vec = landsatEVI2$evi2)
+#' }
 #' @export 
 #' @import data.table
 FitBLSP <- function(date_vec, vi_vec, 
     weights_vec = NULL, 
     initValues = NULL, 
-    ifplot = FALSE, 
     verbose = FALSE
 ) {
     # Check if date_vec is in Date format
@@ -205,121 +200,40 @@ FitBLSP <- function(date_vec, vi_vec,
     bf_phenos <- NULL
     for (i in 1:numYears) {
         if (m2_quan[2, ][[i]] > 0.4) { # suppress some amplitude-too-low year
-            bf_phenos <- rbind(bf_phenos, list(
+            bf_phenos <- rbind(bf_phenos, data.table::data.table(
                 Year = years[i],
-                midgup_lower = m3_quan[1, ][[i]], midgup = m3_quan[2, ][[i]], 
-                    midgup_upper = m3_quan[3, ][[i]],
-                midgdown_lower = m5_quan[1, ][[i]], midgdown = m5_quan[2, ][[i]], 
-                    midgdown_upper = m5_quan[3, ][[i]]
+                midgup_lower = m3_quan[1, ][[i]], 
+                midgup = m3_quan[2, ][[i]], 
+                midgup_upper = m3_quan[3, ][[i]],
+                midgdown_lower = m5_quan[1, ][[i]], 
+                midgdown = m5_quan[2, ][[i]], 
+                midgdown_upper = m5_quan[3, ][[i]]
             ))
         } else {
-            bf_phenos <- rbind(bf_phenos, list(
+            bf_phenos <- rbind(bf_phenos, data.table::data.table(
                 Year = years[i],
-                midgup_lower = NA, midgup = NA, midgup_upper = NA,
-                midgdown_lower = NA, midgdown = NA, midgdown_upper = NA
+                midgup_lower = NA, 
+                midgup = NA, 
+                midgup_upper = NA,
+                midgdown_lower = NA, 
+                midgdown = NA, 
+                midgdown_upper = NA
             ))
         }
     }
 
-
-    # ~ If visualize the fit
-    # Note: when plotting out the fit, the fitted curve with CI will be returned.
-    bf_pred <- NULL
-    if (ifplot == TRUE) { # fig: Bayesian Mixed model fit
-        if (verbose) {
-            message("Prepare data for plotting the figure...")
-        }
-        #~ Predict fitted value for full dates ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        years <- sort(unique(lubridate::year(date_vec)))
-        for (i in 1:numYears) {
-            date <- seq(as.Date(paste0(years[i], "-01-01")), 
-                as.Date(paste0(years[i], "-12-31")), by = "day")
-            bf_params <- data.table::data.table(m1 = m1[, i], m2 = m2[, i], 
-                m3 = m3[, i], m4 = m4[, i], m5 = m5[, i], m6 = m6[, i], 
-                m7 = m7[, i])
-            phenos_idx <- data.table::data.table(midgup = numeric(nrow(bf_params)), 
-                midgdown = numeric(nrow(bf_params)))
-
-            predCI <- NULL
-            for (j in 1:nrow(bf_params)) { # j = 1
-                # pred based on current parameter samples
-                pred <- eval(str2expression(model_str), envir = list(
-                    m1 = as.numeric(bf_params[j, 1]), 
-                    m2 = as.numeric(bf_params[j, 2]), 
-                    m3 = as.numeric(bf_params[j, 3]), 
-                    m4 = as.numeric(bf_params[j, 4]),
-                    m5 = as.numeric(bf_params[j, 5]), 
-                    m6 = as.numeric(bf_params[j, 6]), 
-                    m7 = as.numeric(bf_params[j, 7]),
-                    t = 1:length(date)
-                ))
-                predCI <- cbind(predCI, pred)
-            }
-
-            predCI <- t(data.table::data.table(
-                apply(predCI, 1, function(x) {
-                    quantile(x, c(0.025, 0.975))
-                }
-            )))
-
-            pred <- data.table::data.table(
-                apply(predCI, 1, function(x) quantile(x, 0.5))
-            )
-            cur_year_pred <- cbind(date, pred)
-            bf_pred <- rbind(bf_pred, cbind(cur_year_pred, predCI))
-        }
-
-        bf_pred <- data.table::as.data.table(bf_pred)
-        colnames(bf_pred) <- c("Date", "Fitted", "Fitted_lower", "Fitted_upper")
-        bf_pred$Date <- as.Date(bf_pred$Date, origin = "1970-01-01")
-
-
-        # ~ do the plot ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        bf_phenos <- data.table::data.table(bf_phenos)
-        plot(bf_pred$Date, bf_pred$Fitted, cex = 0, ylim = c(-0.1, 1.2), 
-            xlab = "Date", ylab = "EVI2")
-        polygon(c(bf_pred$Date, rev(bf_pred$Date)), c(bf_pred$Fitted_upper, 
-            rev(bf_pred$Fitted_lower)),
-            col = Transparent("red", 0.2),
-            border = NA
-        )
-        points(date_vec, vi_vec, pch = 16, col = Transparent(rep("black", 
-            length(weights_vec)), weights_vec), cex = 0.5)
-        lines(bf_pred$Date, bf_pred$Fitted, type = "l", ylim = c(0, 1), 
-            col = "red", lwd = 2)
-
-        pheno_names <- c("midgup", "midgdown")
-        pheno_colors <- rev(viridis::viridis(9))
-        for (k in 1:length(pheno_names)) { # k = 1
-            pheno <- pheno_names[k]
-            phn_dates <- bf_phenos[!is.na(get(pheno)), ][[pheno]]
-            phn_dates <- as.Date(paste0(years, "-01-01")) + unlist(phn_dates)
-
-            phn_val <- bf_pred[Date %in% as.Date(as.character(phn_dates)), Fitted]
-
-            points(phn_dates, phn_val, pch = 16, col = pheno_colors[k])
-            phn_dates_lower <- as.Date(paste0(years, "-01-01")) + 
-                unlist(bf_phenos[!is.na(get(pheno)), ][[paste0(pheno, "_lower")]])
-            phn_dates_upper <- as.Date(paste0(years, "-01-01")) + 
-                unlist(bf_phenos[!is.na(get(pheno)), ][[paste0(pheno, "_upper")]])
-            segments(phn_dates_lower, phn_val, phn_dates_upper, phn_val)
-        }
-        legend("top", ncol = 3, bty = "n", 
-            lty = c(NA, 1, rep(NA, 3), 1), 
-            pch = c(16, NA, 16, 15, 16, NA),
-            col = c("black", "red", pheno_colors[1], 
-                Transparent("red", 0.2), pheno_colors[2], "black"),
-            legend = c("Observations", "Median Fit", "SOS", "95% C.I. of fit", 
-                "EOS", "95% C.I. of phenometrics")
-        )
-        legend("bottomright", bty = "n", legend = expression(italic(
-            "*Observation transparency depends on weight")), cex = 0.8)
-    }
+    # Construct `blsp_fit` object to return
+    blsp_fit <- list(
+        phenos = bf_phenos,
+        params = list(m1 = m1, m2 = m2, m3 = m3, m4 = m4, m5 = m5, m6 = m6, m7 = m7),
+        data = data.table::data.table(date = date_vec, vi = vi_vec)
+    )
+    class(blsp_fit) <- "BlspFit"
 
     if (verbose) {
         message("Done!")
     }
-    return(list(fitted = bf_pred, phenos = bf_phenos))
+    return(blsp_fit)
 }
 
 

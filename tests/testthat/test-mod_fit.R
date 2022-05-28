@@ -36,23 +36,22 @@ test_that("BLSP model works", {
 
     data(landsatEVI2)
     model_init <- FitAvgModel(landsatEVI2$date, landsatEVI2$evi2)
-    bf_fit <- FitBLSP(
+    blsp_fit <- FitBLSP(
         date_vec = landsatEVI2$date,
         vi_vec = landsatEVI2$evi2,
         weights_vec = ifelse(landsatEVI2$snow == TRUE, 0.1, 1),
         initValues = model_init,
-        ifplot = FALSE, 
         verbose = FALSE
     )
 
-    expect_type(bf_fit, "list")
-    expect_equal(bf_fit$fitted, NULL)
+    expect_s3_class(blsp_fit, "BlspFit")
+    expect_equal(blsp_fit$data, data.table::data.table(
+        date = landsatEVI2$date, vi = landsatEVI2$evi2
+    ))
 
     # The output of FitBLSP function is a bit weird, should revise it and chagne 
     #   here later.
-    est_lsp <- data.frame(bf_fit$phenos)
-    est_lsp <- lapply(est_lsp, function(x) { unlist(x) })
-    est_lsp <- data.frame(est_lsp)
+    est_lsp <- data.frame(blsp_fit$phenos)
     est_lsp <- round(est_lsp, 0)
 
     # Check the values
