@@ -3,4 +3,5 @@
 export(FitAvgModel)
 export(FitBLSP)
 export(PlotAvg)
+export(PlotBLSP)
 import(data.table)

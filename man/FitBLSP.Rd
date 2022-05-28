@@ -9,7 +9,6 @@ FitBLSP(
   vi_vec,
   weights_vec = NULL,
   initValues = NULL,
-  ifplot = FALSE,
   verbose = FALSE
 )
 }
@@ -25,17 +24,12 @@ weights for the supplied observations. Must be between 0 and 1, inclusive.}
 \item{initValues}{Initial values for MCMC sampling. We get these values from
 fitting the averaged model. It could also be \code{NULL}.}
 
-\item{ifplot}{logical. Plot the model fit if TRUE. This must be TRUE
-in order to return the fitted curve data with confidence intervals.}
-
 \item{verbose}{logical. If \code{TRUE}, the progress will be reported.}
 }
 \value{
-A list of 2 data tables. \code{fitted} contains the values for the
-plotted phenology curve and the associated confidence interval,
-while \code{phenos} contains the estimated DOY of midgreenup and midgreendown
-per year, with upper and lower confidence intervals. Note that \code{fitted}
-returns \code{NULL} if \code{ifplot} is FALSE.
+An object of class \code{BlspFit} will be returned. The object contains the
+estimated spring and autumn phenometrics for each year, the generated model
+parameter samples, and the input data.
 }
 \description{
 This function fits a Bayesian mixed hierarchical land surface phenology model
@@ -43,6 +37,8 @@ to the supplied data (can be sparse), and returns phenometrics for the
 entire time frame. For further explanation, please see the vignette.
 }
 \examples{
+\dontrun{
 data(landsatEVI2)
-FitBLSP(date_vec=landsatEVI2$date, vi_vec=landsatEVI2$evi2)
+blsp_fit <- FitBLSP(date_vec = landsatEVI2$date, vi_vec = landsatEVI2$evi2)
+}
 }
