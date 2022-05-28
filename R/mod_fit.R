@@ -38,6 +38,11 @@ FitBLSP <- function(date_vec, vi_vec,
         stop("There're invalid Date values in the `date_vec`! 
             Be sure to use `yyyy-mm-dd` format.")
     }
+
+    # Check weights to be in the range of [0, 1]
+    if (min(weights_vec) < 0 & max(weights_vec) > 1) {
+        stop("Weights must be within [0, 1].")
+    }
     
     # Convert data to jags format
     y <- vi_vec
