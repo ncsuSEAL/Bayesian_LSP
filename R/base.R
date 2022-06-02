@@ -19,6 +19,8 @@ model_str <- "m1 + (m2 - m7 * t) * ((1 / (1 + exp((m3 - t) / m4))) -
 #' @param maxColorValue: used to convert the color to rgb format before making
 #' it transparent.
 #' @return color code.
+#' 
+#' @noRd
 Transparent <- function(orig.col, alpha = 1, maxColorValue = 255) {
     n.cols <- length(orig.col)
     orig.col <- col2rgb(orig.col)
@@ -41,6 +43,8 @@ Transparent <- function(orig.col, alpha = 1, maxColorValue = 255) {
 #' @param vi_vec The vegetation index vector.
 #' @return A list that contains formated data.
 #' @import data.table
+#' 
+#' @noRd
 FormatAvgData <- function(date_vec, vi_vec) {
     # Check if date_vec is in Date format
     if (sum(!is.na(lubridate::parse_date_time(date_vec, orders = "ymd"))) !=

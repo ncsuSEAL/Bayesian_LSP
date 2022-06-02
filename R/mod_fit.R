@@ -257,6 +257,8 @@ FitBLSP <- function(date_vec, vi_vec,
 #' @param params The Parameter list.
 #' @param t Date vector.
 #' @return The phenological timing in day of year (DOY)
+#' 
+#' @noRd
 GetPhenosIdx <- function(equation, params, t) {
     y <- eval(equation, envir = list(
         m1 = params$m1, m2 = params$m2, m3 = params$m3, m4 = params$m4,
