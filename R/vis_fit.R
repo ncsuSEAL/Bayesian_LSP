@@ -95,6 +95,10 @@ PlotBLSP <- function(blsp_fit, if_return_fit = FALSE) {
     # Unpack data from the object
     date_vec <- blsp_fit$data$date
     vi_vec <- blsp_fit$data$vi
+    weights_vec <- blsp_fit$weights
+    if (is.null(weights_vec)) {
+        weights_vec <- rep(1, length(vi_vec))
+    }
     bf_phenos <- blsp_fit$phenos
     yr <- lubridate::year(date_vec) - lubridate::year(date_vec)[1] + 1
     numYears <- length(unique(yr))

@@ -238,7 +238,7 @@ FitBLSP <- function(date_vec, vi_vec,
     blsp_fit <- list(
         phenos = bf_phenos,
         params = list(m1 = m1, m2 = m2, m3 = m3, m4 = m4, m5 = m5, m6 = m6, m7 = m7),
-        data = data.table::data.table(date = date_vec, vi = vi_vec)
+        data = data.table::data.table(date = date_vec, vi = vi_vec, weights = weights_vec)
     )
     class(blsp_fit) <- "BlspFit"
 
