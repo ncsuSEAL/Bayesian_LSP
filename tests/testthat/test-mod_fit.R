@@ -1,7 +1,7 @@
-#************************************************************************************
+#*******************************************************************************
 # Description: Test model fitting related functions
 # Date: 2022-04-08
-#************************************************************************************
+#*******************************************************************************
 
 # Test `FitAvgModel`
 test_that("Fitting the average model works", {
@@ -46,7 +46,9 @@ test_that("BLSP model works", {
 
     expect_s3_class(blsp_fit, "BlspFit")
     expect_equal(blsp_fit$data, data.table::data.table(
-        date = landsatEVI2$date, vi = landsatEVI2$evi2
+        date = landsatEVI2$date, 
+        vi = landsatEVI2$evi2, 
+        weights = ifelse(landsatEVI2$snow == TRUE, 0.1, 1)
     ))
 
     # The output of FitBLSP function is a bit weird, should revise it and chagne 
