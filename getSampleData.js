@@ -113,8 +113,8 @@ function wrapper(sensorName){
   var evi2Bands = ee.Algorithms.If(landsatType.size().eq(0), 
                   ee.List(["SR_B3", "SR_B4", "QA_PIXEL"]),
                   ee.List(["SR_B4", "SR_B5", "QA_PIXEL"]));
-  var nir = ee.List(evi2Bands).get(0);
-  var red = ee.List(evi2Bands).get(1);
+  var nir = ee.List(evi2Bands).get(1);
+  var red = ee.List(evi2Bands).get(0);
 
   // Create the image collection, then filter by date and points, then 
   // apply cloudmask and evi2 calculation
