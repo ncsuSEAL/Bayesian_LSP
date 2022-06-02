@@ -4,3 +4,13 @@
 ^README\.Rmd$
 ^doc$
 ^Meta$
+
+
+^.github$
+^Dockerfile$
+^getSampleData.js$
+^requirements$
+^scripts$
+^docker-compose.yaml$
+^img$
+^Bayesian_LSP.Rproj$

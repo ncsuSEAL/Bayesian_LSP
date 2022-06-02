@@ -20,6 +20,7 @@
 #' avg_fit <- FitAvgModel(landsatEVI2$date, landsatEVI2$evi2)
 #' PlotAvg(landsatEVI2$date, landsatEVI2$evi2, avg_fit)
 #' }
+#' @import data.table
 PlotAvg <- function(date_vec, vi_vec, avg_fit) {
     # Format data
     avg_dt <- FormatAvgData(date_vec, vi_vec)
@@ -35,16 +36,16 @@ PlotAvg <- function(date_vec, vi_vec, avg_fit) {
     phenos_idx <- NULL
     phenos <- NULL
     if (!is.null(avg_fit)) {
-        pred <- predict(avg_fit, newdata = list(t = full_t))
+        pred <- stats::predict(avg_fit, newdata = list(t = full_t))
         phenos_idx <- GetPhenosIdx(str2expression(model_str),
             params = list(
-                m1 = coef(avg_fit)["m1"],
-                m2 = coef(avg_fit)["m2"],
-                m3 = coef(avg_fit)["m3"],
-                m4 = coef(avg_fit)["m4"],
-                m5 = coef(avg_fit)["m5"],
-                m6 = coef(avg_fit)["m6"],
-                m7 = coef(avg_fit)["m7"]
+                m1 = stats::coef(avg_fit)["m1"],
+                m2 = stats::coef(avg_fit)["m2"],
+                m3 = stats::coef(avg_fit)["m3"],
+                m4 = stats::coef(avg_fit)["m4"],
+                m5 = stats::coef(avg_fit)["m5"],
+                m6 = stats::coef(avg_fit)["m6"],
+                m7 = stats::coef(avg_fit)["m7"]
             ),
             t = full_t
         )
@@ -56,14 +57,14 @@ PlotAvg <- function(date_vec, vi_vec, avg_fit) {
         pch = 16, col = "seagreen",
         xlab = "", ylab = ""
     )
-    mtext(text = "DOY", side = 1, line = 2)
-    mtext(text = "EVI2", side = 2, line = 2)
+    graphics::mtext(text = "DOY", side = 1, line = 2)
+    graphics::mtext(text = "EVI2", side = 2, line = 2)
 
-    lines(full_date, pred, col = "orange", lwd = 2)
-    points(full_date[phenos_idx$midgup], pred[phenos_idx$midgup],
+    graphics::lines(full_date, pred, col = "orange", lwd = 2)
+    graphics::points(full_date[phenos_idx$midgup], pred[phenos_idx$midgup],
         pch = 21, lwd = 2, cex = 1.5, bg = "red"
     )
-    points(full_date[phenos_idx$midgdown], pred[phenos_idx$midgdown],
+    graphics::points(full_date[phenos_idx$midgdown], pred[phenos_idx$midgdown],
         pch = 21, lwd = 2, cex = 1.5, bg = "red"
     )
 }
@@ -141,12 +142,12 @@ PlotBLSP <- function(blsp_fit, if_return_fit = FALSE) {
 
         predCI <- t(data.table::data.table(
             apply(predCI, 1, function(x) {
-                quantile(x, c(0.025, 0.975))
+                stats::quantile(x, c(0.025, 0.975))
             }
         )))
 
         pred <- data.table::data.table(
-            apply(predCI, 1, function(x) quantile(x, 0.5))
+            apply(predCI, 1, function(x) stats::quantile(x, 0.5))
         )
         cur_year_pred <- cbind(date, pred)
         bf_pred <- rbind(bf_pred, cbind(cur_year_pred, predCI))
@@ -162,17 +163,17 @@ PlotBLSP <- function(blsp_fit, if_return_fit = FALSE) {
         cex = 0, ylim = c(-0.1, 1), 
         xlab = "Date", ylab = "EVI2"
     )
-    polygon(c(bf_pred$Date, rev(bf_pred$Date)), 
+    graphics::polygon(c(bf_pred$Date, rev(bf_pred$Date)), 
         c(bf_pred$Fitted_upper, rev(bf_pred$Fitted_lower)),
         col = Transparent("red", 0.2),
         border = NA
     )
-    points(date_vec, vi_vec, 
+    graphics::points(date_vec, vi_vec, 
         pch = 16, 
         col = Transparent(rep("black", length(weights_vec)), weights_vec), 
         cex = 0.5
     )
-    lines(bf_pred$Date, bf_pred$Fitted, 
+    graphics::lines(bf_pred$Date, bf_pred$Fitted, 
         type = "l", ylim = c(0, 1), 
         col = "red", lwd = 2
     )
@@ -186,14 +187,15 @@ PlotBLSP <- function(blsp_fit, if_return_fit = FALSE) {
 
         phn_val <- bf_pred[Date %in% as.Date(as.character(phn_dates)), Fitted]
 
-        points(phn_dates, phn_val, pch = 16, col = pheno_colors[k])
+        graphics::points(phn_dates, phn_val, pch = 16, col = pheno_colors[k])
         phn_dates_lower <- as.Date(paste0(years, "-01-01")) + 
             unlist(bf_phenos[!is.na(get(pheno)), ][[paste0(pheno, "_lower")]])
         phn_dates_upper <- as.Date(paste0(years, "-01-01")) + 
             unlist(bf_phenos[!is.na(get(pheno)), ][[paste0(pheno, "_upper")]])
-        segments(phn_dates_lower, phn_val, phn_dates_upper, phn_val)
+        graphics::segments(phn_dates_lower, phn_val, phn_dates_upper, phn_val)
     }
-    legend(grconvertX(0.5, "ndc"), grconvertY(0.95, "ndc"), 
+    graphics::legend(
+        graphics::grconvertX(0.5, "ndc"), graphics::grconvertY(0.95, "ndc"), 
         xjust = 0.5,
         ncol = 3, bty = "n", 
         lty = c(NA, 1, rep(NA, 3), 1), 
@@ -204,8 +206,10 @@ PlotBLSP <- function(blsp_fit, if_return_fit = FALSE) {
             "EOS", "95% C.I. of phenometrics"),
         xpd = NA
     )
-    legend("bottomright", bty = "n", 
-        legend = expression(italic("*Observation transparency depends on weight")), 
+    graphics::legend("bottomright", bty = "n", 
+        legend = expression(italic(
+            "*Observation transparency depends on weight"
+        )), 
         cex = 0.8
     )
 

@@ -104,13 +104,13 @@ FitBLSP <- function(date_vec, vi_vec,
     }"
 
     if (!is.null(initValues)) {
-        p_m1 <- coef(initValues)["m1"]
-        p_m2 <- coef(initValues)["m2"]
-        p_m3 <- coef(initValues)["m3"]
-        p_m4 <- coef(initValues)["m4"]
-        p_m5 <- coef(initValues)["m5"]
-        p_m6 <- coef(initValues)["m6"]
-        p_m7 <- coef(initValues)["m7"]
+        p_m1 <- stats::coef(initValues)["m1"]
+        p_m2 <- stats::coef(initValues)["m2"]
+        p_m3 <- stats::coef(initValues)["m3"]
+        p_m4 <- stats::coef(initValues)["m4"]
+        p_m5 <- stats::coef(initValues)["m5"]
+        p_m6 <- stats::coef(initValues)["m6"]
+        p_m7 <- stats::coef(initValues)["m7"]
     } else {
         p_m1 <- 0.05
         p_m2 <- 1
@@ -141,7 +141,7 @@ FitBLSP <- function(date_vec, vi_vec,
                 data = data, inits = inits,
                 n.chains = 3, quiet = TRUE
             )
-            update(model, 2000, progress.bar = pb_type)
+            stats::update(model, 2000, progress.bar = pb_type)
 
             if (verbose) {
                 message("Sampling (could have multiple chains)...")
@@ -203,10 +203,18 @@ FitBLSP <- function(date_vec, vi_vec,
             samp[[2]][, paste0("m7", "[", i, "]")]))
     }
 
-    m1_quan <- data.table::data.table(apply(m1, 2, quantile, c(0.05, 0.5, 0.95)))
-    m2_quan <- data.table::data.table(apply(m2, 2, quantile, c(0.05, 0.5, 0.95)))
-    m3_quan <- data.table::data.table(apply(m3, 2, quantile, c(0.05, 0.5, 0.95)))
-    m5_quan <- data.table::data.table(apply(m5, 2, quantile, c(0.05, 0.5, 0.95)))
+    m1_quan <- data.table::data.table(
+        apply(m1, 2, stats::quantile, c(0.05, 0.5, 0.95))
+    )
+    m2_quan <- data.table::data.table(
+        apply(m2, 2, stats::quantile, c(0.05, 0.5, 0.95))
+    )
+    m3_quan <- data.table::data.table(
+        apply(m3, 2, stats::quantile, c(0.05, 0.5, 0.95))
+    )
+    m5_quan <- data.table::data.table(
+        apply(m5, 2, stats::quantile, c(0.05, 0.5, 0.95))
+    )
     
     years <- sort(unique(lubridate::year(date_vec)))
     bf_phenos <- NULL
@@ -237,8 +245,14 @@ FitBLSP <- function(date_vec, vi_vec,
     # Construct `blsp_fit` object to return
     blsp_fit <- list(
         phenos = bf_phenos,
-        params = list(m1 = m1, m2 = m2, m3 = m3, m4 = m4, m5 = m5, m6 = m6, m7 = m7),
-        data = data.table::data.table(date = date_vec, vi = vi_vec, weights = weights_vec)
+        params = list(m1 = m1, m2 = m2, m3 = m3, 
+            m4 = m4, m5 = m5, m6 = m6, m7 = m7
+        ),
+        data = data.table::data.table(
+            date = date_vec, 
+            vi = vi_vec, 
+            weights = weights_vec
+        )
     )
     class(blsp_fit) <- "BlspFit"
 
@@ -265,8 +279,8 @@ GetPhenosIdx <- function(equation, params, t) {
         m5 = params$m5, m6 = params$m6, m7 = params$m7, t = t
     ))
 
-    d1 <- D(equation, "t")
-    d2 <- D(d1, "t")
+    d1 <- stats::D(equation, "t")
+    d2 <- stats::D(d1, "t")
     
     y1 <- eval(d1, envir = list(
         m1 = params$m1, m2 = params$m2, m3 = params$m3, m4 = params$m4,
@@ -345,7 +359,7 @@ FitAvgModel <- function(date_vec, vi_vec) {
     # Fit model to get the prior
     avg_fit <- tryCatch(
         {
-            model_equ <- as.formula(paste("VI", "~", model_str))
+            model_equ <- stats::as.formula(paste("VI", "~", model_str))
             minpack.lm::nlsLM(model_equ,
                 data = list(VI = y, t = as.integer(t)), start = list(
                     m1 = 0.05, m2 = 1, m3 = 120, m4 = 6, m5 = 290, m6 = 8, 

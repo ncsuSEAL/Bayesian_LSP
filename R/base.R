@@ -23,10 +23,11 @@ model_str <- "m1 + (m2 - m7 * t) * ((1 / (1 + exp((m3 - t) / m4))) -
 #' @noRd
 Transparent <- function(orig.col, alpha = 1, maxColorValue = 255) {
     n.cols <- length(orig.col)
-    orig.col <- col2rgb(orig.col)
+    orig.col <- grDevices::col2rgb(orig.col)
     final.col <- rep(NA, n.cols)
     for (i in 1:n.cols) {
-        final.col[i] <- rgb(orig.col[1, i], orig.col[2, i], orig.col[3, i],
+        final.col[i] <- grDevices::rgb(
+            orig.col[1, i], orig.col[2, i], orig.col[3, i],
             alpha = alpha[i] * 255,
             maxColorValue = maxColorValue
         )
@@ -54,9 +55,13 @@ FormatAvgData <- function(date_vec, vi_vec) {
     }
 
     # Make it a data table
-    vi_dt <- data.table::data.table(date = as.Date(date_vec), evi2 = vi_vec)
+    vi_dt <- data.table::data.table(
+        date = as.Date(date_vec), 
+        evi2 = vi_vec,
+        avg_date = ""
+    )
     vi_dt$avg_date <- as.Date(paste0("1970", substr(vi_dt$date, 5, 10)))
-    vi_dt <- na.omit(vi_dt)
+    vi_dt <- stats::na.omit(vi_dt)
     vi_dt <- data.table::setorder(vi_dt, date)
 
     # Find unique dates in the averaged year
