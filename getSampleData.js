@@ -92,6 +92,7 @@ function calcEVI2(nirBand, redBand){
                   'nir': nir,
                   'red': red
                 });
+    // ignore anomalous evi2 values < 0 and > 1
     var evi2_mask = evi2.lt(1).and(evi2.gt(0));
     evi2 = evi2.updateMask(evi2_mask);
     return image.addBands(evi2.rename("evi2"));
