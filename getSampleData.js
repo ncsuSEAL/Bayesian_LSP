@@ -1,7 +1,7 @@
 // ****************************************************************************************
 // Description: Extract EVI2 time series from Landsat 5, 7, 8, and 9 products for 
 // point locations. This is to supplement the blsp package in R
-// Author: J. Gao, Ian McGregor
+// Author: Ian McGregor, J. Gao
 // Last updated: June 2022
 // ****************************************************************************************
 
@@ -92,6 +92,8 @@ function calcEVI2(nirBand, redBand){
                   'nir': nir,
                   'red': red
                 });
+    var evi2_mask = evi2.lt(1).and(evi2.gt(0));
+    evi2 = evi2.updateMask(evi2_mask);
     return image.addBands(evi2.rename("evi2"));
   };
   return(calc);
