@@ -1,3 +1,5 @@
+<img src="man/figures/logo.png" align="right" height="138" />
+
 # blsp: Bayesian land surface phenology model
 Welcome to the `blsp` R package for creating a Bayesian land surface phenology model. This is a hierarchical model that quantifies long-term annual land surface phenology from temporally sparse optical remote sensing time series (originally developed for 30 m Landsat time series).
 
