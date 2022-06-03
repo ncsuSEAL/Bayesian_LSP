@@ -83,7 +83,7 @@ head(results$phenos)
 
 
 ### Assigning initial values
-As documented in [Gao et al 2021](https://www.sciencedirect.com/science/article/pii/S0034425721002029?via%3Dihub), good initial values can save some time for the model to converge. By default, the `initValues` of the `FitBLSP()` function are determined by the BLSP model so the users don't have to provide them. But, we can get initial values from fitting an average model in which all years data are pooled together. **Note that the average model cannot successfully fit all time series data (that's another reason why we need the BLSP model), if that happens, just keep `initValues` as `NULL`.**
+As documented in [Gao et al 2021](https://www.sciencedirect.com/science/article/pii/S0034425721002029?via%3Dihub), good initial values can save some time for the model to converge. By default, the `initValues` of the `FitBLSP()` function are determined by the BLSP model so the users don't have to provide them. But, we can get initial values from fitting an average model in which all years of data are pooled together. **Note that the average model cannot successfully fit all time series data (that's one of the reasons that we need the BLSP model), if that happens, just keep `initValues` as `NULL`.**
 
 ```{r fit-avg-model}
 avg_fit <- FitAvgModel(sub_dt$date, sub_dt$evi2)
@@ -91,7 +91,8 @@ print(avg_fit)
 ```
 
 The average model can also be plotted out:
-```{r avg-fit-figure, fig.width=7, fig.height=6}
+```{r avg-fit-figure, fig.width=7, fig.height=5}
+par(mar = c(3, 3, 1, 1))
 PlotAvg(
   date_vec = sub_dt$date,
   vi_vec = sub_dt$evi2,
