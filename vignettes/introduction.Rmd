@@ -50,7 +50,7 @@ str(results)
 ```
 
 Let's plot the reconstruction of the EVI2 time series using the supplied data. This will take some time to run as the function will try each combination of the MCMC generated parameters to predict the best fit curve.
-```{r code 3}
+```{r code 3, fig.width=7.5, fig.height=4}
 fitted_dt <- PlotBLSP(results, if_return_fit = TRUE)
 ```
 
