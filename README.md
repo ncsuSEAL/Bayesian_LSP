@@ -1,5 +1,5 @@
 # blsp: Bayesian land surface phenology model
-Welcome to the blsp R package for creating a Bayesian land surface phenology model. This is a hierarchical model that quantifies long-term annual land surface phenology from temporally sparse optical remote sensing time series (originally developed for 30 m Landsat time series).
+Welcome to the `blsp` R package for creating a Bayesian land surface phenology model. This is a hierarchical model that quantifies long-term annual land surface phenology from temporally sparse optical remote sensing time series (originally developed for 30 m Landsat time series).
 
 For a more in-depth description, please read the paper: [Long-term, medium spatial resolution annual land surface phenology with a Bayesian hierarchical model](https://doi.org/10.1016/j.rse.2021.112484), with the citation:
 > Gao, X., Gray, J. M., & Reich, B. J. (2021). Long-term, medium spatial resolution annual land surface phenology with a Bayesian hierarchical model. Remote Sensing of Environment, 261, 112484. https://doi.org/10.1016/j.rse.2021.112484
@@ -7,52 +7,32 @@ For a more in-depth description, please read the paper: [Long-term, medium spati
 ```
 For the exact version in the paper, please go to the `release/reproduce_paper` branch.
 ```
-## Updating the package (move this before fully finishing)
-Once you have updated the `.R` files with documentation or new code, run `devtools::document()`, which will update the readonly files. Push the changes to github, then re-install the package.
 
 ## How to install blsp package in R
-To install this package, please run `devtools::install_github("ncsuSEAL/Bayesian_LSP")` in an R session. Afterwards, you can call the package using `library(blsp)`. 
+
+We use JAGS (Just Another Gibbs Sampler) software to conduct Markov Chain Monte Carlo (MCMC) sampling for the Bayesian model. Please install JAGS software before installing the `blsp` package. Please visit the [JAGS website](http://mcmc-jags.sourceforge.net/) for installation. Don't worry if you know nothing about JAGS, you don't even need to open it after installing. We use R to communicate with it.
+
+Next, in the R terminal, run:
+```
+devtools::install_github("ncsuSEAL/Bayesian_LSP", build_vignettes = TRUE)
+```
+Afterwards, you can call the package using `library(blsp)`. Run `??blsp` to see the vignettes and functions available in the package. 
 
 ## Note:
 We are currently (as of Apr 2022) improving the computing speed of the BLSP algorithm, thanks to Matt Shisler and Dr. Brian Reich's help. Be sure to watch or star this repo to keep up with our updates.
 
-## Installation
-The scripts are written in R programming language and use JAGS software to conduct the MCMC sampling for the Bayesian model. To run the scripts, users need to install certain dependencies, the JAGS software, and the blsp package itself.
+## The package functionality 
+The package takes sparse vegetation index observations from the entirety of the Landsat time series (for example), and create a continuous estimate of annual land surface phenology. In addition to calculating start of season (SOS) and end of season (EOS) dates, the model also calculated pixel-wise uncertainty estimates for each of these phenometrics. 
 
-### R dependencies
-The original code was developed using R v3.6.2, and has been tested on 4.1.1.
-Required R packages are:
-* `data.table` - most of the data in the scripts are processed by functions of data.table. Well, I like data.table!
-* `rjags` - for communicating with JAGS software.
-* `minpack.lm` - it provides functions for non-linear least square fit.
-* `RColorBrewer` - for plotting the result.
-* `viridis` - for plotting the result.
-* `lubridate` - for easy parsing date strings.
-
-### JAGS
-Please visit the [JAGS website](http://mcmc-jags.sourceforge.net/) for installation. Specifically, we tested the code using JAGS v4.3.0. Once it is installed, users do not need to interact with the software as all communication will be conducted via R.
-
-## Run the model
-There are 3 files in the respository's `Code` folder:
-* base.R
-* Bayesian_LSP_fit.R
-* test_ts.Rds
-
-`base.R` contains the needed libraries and pre-defined functions, it'll be sourced in `Bayesian_LSP_fit.R`, which runs the model.
-
-`test_ts.Rds` is a cached R dataset file. It contains a Landsat EVI2 time series with columns including date and EVI2 value. Users can use the test data to quickly run the Bayesian model.
-
-`Bayesian_LSP_fit.R` is easy to understand and run. The only thing need to do before running the script is changing the working directory specified in `setwd()` function, make sure the script can find the `base.R` file and `test_ts.Rds` file. After running the script, there will be a plot showing the result of LSP fit and a table that contains all retreived phenometrics.
-
-Detail information about the model can be found in the paper.
-
-Program result - Model fit:
+The model fit is shown in the below figure:
 
 ![](img/model_fit_plot.png)
 
-Program result - Retrieved phenos:
+And, the estimated phenometrics and their 95% credible intervals are stored in a table returned by the `FitBLSP()` function of the `blsp` package:
 
 <img src="img/model_fit_phenos.png" alt="" width="500"/>
+
+For detailed introduction of the package usage, please use `??blsp` to see the vignettes.
 
 
 # Docker
