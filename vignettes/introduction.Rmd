@@ -117,7 +117,7 @@ str(results)
 If you have your own data you want to use this package for, that's great! Otherwise, we've provided a simple way for users to obtain EVI2 time series data for their area(s) of interest via Google Earth Engine (GEE). Here we are using Landsats 5,7,8,9 Collection 2 Surface Reflectance data. **Note this method requires you have a Google account**.
 
 ### Get data from GEE
-First, please go to [this link](https://code.earthengine.google.com/7e2cdb594772506e296bda8411b05d20) for the GEE script. If the link does not work, please open a new [code browser](https://code.earthengine.googlecom) and copy/paste the script found [here](https://github.com/ncsuSEAL/Bayesian_LSP/blob/main/getSampleData.js).
+First, please go to [this link](https://code.earthengine.google.com/7e2cdb594772506e296bda8411b05d20) for the GEE script. If the link does not work, please open a new [code browser](https://code.earthengine.googlecom) and copy/paste the script found [here](https://github.com/ncsuSEAL/Bayesian_LSP/blob/main/gee/getSampleData.js).
 
 Second, change the start and end dates (*Section 1: Define variables*) and the point coordinates (*Section 1: Define study locations*) as you need, and run the script by clicking the "Run" button.
 
