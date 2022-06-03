@@ -1,11 +1,14 @@
 // ****************************************************************************************
 // Description: Extract EVI2 time series from Landsat 5, 7, 8, and 9 products for 
 // point locations. This is to supplement the blsp package in R
-// Author: Ian McGregor, J. Gao
+// Author: Ian McGregor, Xiaojie Gao, 
 // Last updated: June 2022
 // ****************************************************************************************
 
+////////////////////////////////////////////////////////////////////////
 // STEP 1: DEFINE VARIABLES AND YOUR DESIRED POINTS
+////////////////////////////////////////////////////////////////////////
+
 // *************** Define Variables ************************
 // Please adjust this as you need. Note L9 has no data prior to 2021
 var startDate = "1984-01-01";
@@ -19,14 +22,14 @@ var sensor =
   ];
   
 // columns for the output csv
-var bandNames = ['satellite', 'date', 'lon', 'lat', 'id', 'evi2', 'QA_PIXEL']
+var bandNames = ['satellite', 'date', 'lon', 'lat', 'id', 'evi2', 'QA_PIXEL'];
 
 // Labels for exporting the csv to google drive
-var taskDescription = "exportEVI2" //description of task in GEE
-var folder = "Bayesian_LSP" //folder to export to, single string
-var fileName = "sampleData" //name of file, e.g. this will be sampleData.csv
+var taskDescription = "exportEVI2"; //description of task in GEE
+var folder = "Bayesian_LSP"; //folder to export to, single string
+var fileName = "sampleData"; //name of file, e.g. this will be sampleData.csv
 
-// *************** Define Variables ************************
+// *************** Define study locations ************************
 // site locations can be either be specified by coordinates...
 
 // A sample list of coordinates
@@ -57,6 +60,10 @@ var samp_pts = ee.FeatureCollection(points.map(function(p){
 //var samp_pts = ee.FeatureCollection(table);
 
 print("Sample Points", samp_pts);
+
+////////////////////////////////////////////////////////////////////////
+// STEP 2: DEFINE FUNCTIONS
+////////////////////////////////////////////////////////////////////////
 
 // *************** Define Individual Functions ************************
 /**
@@ -158,6 +165,10 @@ function wrapper(sensorName){
   var out = fullTS.map(getValsEachImage);
   return(ee.FeatureCollection(out.flatten()));
 }
+
+////////////////////////////////////////////////////////////////////////
+// STEP 3: RUN THE MAIN CODE AND EXPORT
+////////////////////////////////////////////////////////////////////////
 
 // *************** Run the main code ************************
 var loop = sensor.map(wrapper);
