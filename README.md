@@ -16,7 +16,7 @@ Next, in the R terminal, run:
 ```
 devtools::install_github("ncsuSEAL/Bayesian_LSP", build_vignettes = TRUE)
 ```
-Afterwards, you can call the package using `library(blsp)`. Run `??blsp` to see the vignettes and functions available in the package. 
+Afterwards, you can call the package using `library(blsp)`. Run `help(package = "blsp")` to see the vignettes and functions available in the package. 
 
 ## Note:
 We are currently (as of Apr 2022) improving the computing speed of the BLSP algorithm, thanks to Matt Shisler and Dr. Brian Reich's help. Be sure to watch or star this repo to keep up with our updates.
