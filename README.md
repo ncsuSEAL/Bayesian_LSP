@@ -16,10 +16,10 @@ Next, in the R terminal, run:
 ```r
 devtools::install_github("ncsuSEAL/Bayesian_LSP", build_vignettes = TRUE)
 ```
-Afterwards, you can call the package using `library(blsp)`. Run `help(package = "blsp")` to see the vignettes and functions available in the package. 
+Afterwards, you can call the package using `library(blsp)`. Run `help(package = "blsp")` to see the vignette and functions available in the package. 
 
 ## Note:
-We are currently (as of Apr 2022) improving the computing speed of the BLSP algorithm, thanks to Matt Shisler and Dr. Brian Reich's help. Be sure to watch or star this repo to keep up with our updates.
+We are currently (as of June 2022) improving the computing speed of the BLSP algorithm, thanks to Matt Shisler and Dr. Brian Reich's help. Be sure to watch or star this repo to keep up with our updates.
 
 ## The package functionality 
 The package takes sparse vegetation index observations from the entirety of the Landsat time series (for example), and create a continuous estimate of annual land surface phenology. In addition to calculating start of season (SOS) and end of season (EOS) dates, the model also calculated pixel-wise uncertainty estimates for each of these phenometrics. 
