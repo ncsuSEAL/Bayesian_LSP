@@ -52,6 +52,12 @@ FitBLSP <- function(date_vec, vi_vec,
             stop("date_vec, vi_vec, and weights_vec have different lengths.")
         }
     }
+
+    # Check NAs
+    if (any(is.na(date_vec)) | any(is.na(vi_vec))) {
+        stop("Please remove NAs in the input data.")
+    }
+
     # Convert data to jags format
     y <- vi_vec
     t <- lubridate::yday(date_vec)

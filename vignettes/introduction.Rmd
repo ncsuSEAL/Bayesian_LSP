@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 library(blsp)
 ```
 
-This vignette will walk you through the `blsp` package and how to use it. For the source code, please visit the [github repository](https://github.com/ncsuSEAL/Bayesian_LSP).
+This vignette will walk you through the `blsp` package and how to use it. For the source code, please visit the [Github repository](https://github.com/ncsuSEAL/Bayesian_LSP).
 
 # Background
 The package was developed by [Gao et al 2021](https://www.sciencedirect.com/science/article/pii/S0034425721002029?via%3Dihub), whose paper detailed a Bayesian hierarchical model to quantify land surface phenology from disparate, optical remote sensing time series. In other words, the model is able to take sparse vegetation index observations from the entirety of the Landsat time series (for example), and create a continuous estimate of annual land surface phenology. In addition to calculating start of season (SOS) and end of season (EOS) dates, the model also calculated pixel-wise uncertainty estimates for each of these phenometrics.
@@ -120,13 +120,13 @@ str(results)
 To help users use this package for their own interested locations with minimal effort of preparing data, we provide a script using Google Earth Engine (GEE) to download EVI2 time series from Landsat Collection 2 for any point locations specified by longitude and latitude. 
 
 ### Get data from GEE
-First, please go to [this link](https://code.earthengine.google.com/167114e1261294b0d7011f53695bf823) for the GEE script. **Note: No requirement on having a GEE account to run this script, but it does require a google account to store the export data.**
+First, please go to [this link](https://code.earthengine.google.com/167114e1261294b0d7011f53695bf823) for the GEE script. **Note: No requirement of having a GEE account to run this script, but it does require a google account to store the exported data.**
 
-Second, change the longitude and latitude coordiantes in line 33-43 to your own needs, and run the script by clicking the "Run" button.
+Second, change the longitude and latitude coordiantes in line 11-12 (for start and end dates) and 33-43 (for point coordiantes) to your own needs, and run the script by clicking the "Run" button.
 
 Third, go to "Tasks" panel, and click the "RUN" button in the row of the "exportEVI2" task. It will pop up a window with the detailed information of the task such as task name, export directory (has to be an google drive folder), and export filename and format. We will go with the default setting for this vignette. Click the "RUN" button of the window. 
 
-It might take several minutes for GEE to process the time series depending on the current availability of their cloud computing resource. After it's done, the export time series data file should be in your google drive folder. 
+It might take several minutes for GEE to process the time series depending on the current availability of their cloud computing resource. After it's done, the exported time series data file should be in your google drive folder. 
 
 ### Process BLSP from the downloaded data
 
@@ -169,7 +169,7 @@ Plot out the model fit:
 fitted_dt <- PlotBLSP(results, if_return_fit = TRUE)
 ```
 
-If you encounter any issues using the package, please feel free to [leave us an issue on Github](https://github.com/ncsuSEAL/Bayesian_LSP).
+If you encounter any issues while using the package, please feel free to [leave us an issue on Github](https://github.com/ncsuSEAL/Bayesian_LSP).
 
 
 
