@@ -55,3 +55,8 @@ We thank the following people for their assistance with the creation of this pac
 - [Isabella Hinks](https://github.com/iHinks): translation of MCMC code to C++ (the work hasn't been merged to this package, but will come soon.)
 - [Owen Smith](https://github.com/ocsmit): development of Docker container
 - [Ian McGregor](https://github.com/mcgregorian1): package development, documentation, and vignette
+
+---
+
+<a href="https://www.flaticon.com/free-icons" title="seal icons">Graphs used in the icon are created by Freepik - Flaticon</a>
+
