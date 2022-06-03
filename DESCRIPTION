@@ -1,6 +1,6 @@
 Package: blsp
 Title: A Bayesian land surface phenology model
-Version: 0.0.0.9000
+Version: 1.0
 Authors@R:
     person(given = "First",
            family = "Last",
