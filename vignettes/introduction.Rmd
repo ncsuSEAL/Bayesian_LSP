@@ -91,7 +91,7 @@ print(avg_fit)
 ```
 
 The average model can also be plotted out:
-```{r avg-fit-figure, fig.width=6, fig.height=3}
+```{r avg-fit-figure, fig.width=7, fig.height=6}
 PlotAvg(
   date_vec = sub_dt$date,
   vi_vec = sub_dt$evi2,
