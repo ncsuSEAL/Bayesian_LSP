@@ -27,7 +27,7 @@ The package was developed by [Gao et al 2021](https://www.sciencedirect.com/scie
 # Running the code
 ## Set-up
 As an example dataset, we will use the `landsatEVI2` dataset, which has EVI2 (two-band enhanced vegetation index, see [details](https://en.wikipedia.org/wiki/Enhanced_vegetation_index)) data calculated from Landsats 5-8 from 1984-2019. For each measurement, there is a corresponding, boolean snow flag (to be used for assigning weights).
-```{r set-up 1}
+```{r laod-data}
 data(landsatEVI2)
 ```
 
@@ -35,7 +35,7 @@ data(landsatEVI2)
 At its core, all you need to run the main function (`FitBLSP`) is a vector of vegetation index data that follows a double logistic function (e.g. NDVI, EVI, EVI2), and the corresponding dates of the individual data points. With these, running the code is simple. 
 
 Here to save some computing time but show the power of the BLSP algorithm in handling data sparsity, we only use data from 1984 to 1994 to fit the model.
-```{r code 1}
+```{r fit-blsp}
 sub_dt <- landsatEVI2[lubridate::year(date) %in% 1984:1994, ]
 results <- FitBLSP(
   date_vec = sub_dt$date, 
@@ -45,23 +45,23 @@ results <- FitBLSP(
 ```
 
 The results are stored in an object with three elements. First, "phenos" is a table containing the estimated DOY of "midgreenup"(or SOS) and "midgreendown" (or EOS) for each year contained in the sample data, along with upper and lower bounds. Second, "params" is a table containing the generated model parameter samples by the [Markov chain Monte Carlo (MCMC) sampling](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo). Third, "data" is the input data table used to fit the BLSP algorithm.
-```{r code 2}
+```{r blsp-result-structure}
 str(results)
 ```
 
 Let's plot the reconstruction of the EVI2 time series using the supplied data. This will take some time to run as the function will try each combination of the MCMC generated parameters to predict the best fit curve.
-```{r code 3, fig.width=7.5, fig.height=4}
+```{r blsp-fit-figure, fig.width=7.5, fig.height=4}
 fitted_dt <- PlotBLSP(results, if_return_fit = TRUE)
 ```
 
 We see that "fitted_val" is a data table with the information used to construct the plot.
-```{r code 4}
+```{r blsp-fitted-table}
 head(fitted_dt)
 ```
 
 ### Changing weights
 Some users may want to assign different weights to certain observations. For example, perhaps the QA for several days is bad and we want to downweight those observations such that they contribute less to the posterior distribution. To add do so, we supply a vector of equal length to `vi_vec` in the range [0,1]. In the sample data, the `snow` column indicates the presence of snow for the corresponding dates. Here, we will assign weights of 0.1 to those observations. (Again, we only use data from 1984 to 1994 as an example)
-```{r code 5}
+```{r assgin-weights}
 sub_dt <- landsatEVI2[lubridate::year(date) %in% 1984:1994, 
   .(date, evi2, weights = ifelse(snow, 0.1, 1), snow)
 ]
@@ -71,7 +71,7 @@ head(sub_dt)
 Adding in weights will make the code run longer. The reason is that the downweighted observations can make the data more sparse than it already is (e.g., if some points have weight near 0, they would contribute little information), thus the Bayesian model may need more time to converge.
 
 Compare the first few rows of "phenos" below with the previous results above.
-```{r code 6}
+```{r blsp-with-weights}
 results <- FitBLSP(
   date_vec = sub_dt$date, 
   vi_vec = sub_dt$evi2, 
@@ -80,3 +80,95 @@ results <- FitBLSP(
 )
 head(results$phenos)
 ```
+
+
+### Assigning initial values
+As documented in [Gao et al 2021](https://www.sciencedirect.com/science/article/pii/S0034425721002029?via%3Dihub), good initial values can save some time for the model to converge. By default, the `initValues` of the `FitBLSP()` function are determined by the BLSP model so the users don't have to provide them. But, we can get initial values from fitting an average model in which all years data are pooled together. **Note that the average model cannot successfully fit all time series data (that's another reason why we need the BLSP model), if that happens, just keep `initValues` as `NULL`.**
+
+```{r fit-avg-model}
+avg_fit <- FitAvgModel(sub_dt$date, sub_dt$evi2)
+print(avg_fit)
+```
+
+The average model can also be plotted out:
+```{r avg-fit-figure, fig.width=6, fig.height=3}
+PlotAvg(
+  date_vec = sub_dt$date,
+  vi_vec = sub_dt$evi2,
+  avg_fit = avg_fit
+)
+```
+
+The `iniValues` argument can either be a numeric vector or an object returned by the `FitAvgModel()` function, we will use the latter. 
+```{r blsp-with-initval}
+results <- FitBLSP(
+  date_vec = sub_dt$date, 
+  vi_vec = sub_dt$evi2, 
+  initValues = avg_fit,
+  verbose = TRUE
+)
+```
+
+We can then see the result of the fit:
+```{r blsp-result}
+str(results)
+```
+
+
+## Processing BLSP for your own data
+To help users use this package for their own interested locations with minimal effort of preparing data, we provide a script using Google Earth Engine (GEE) to download EVI2 time series from Landsat Collection 2 for any point locations specified by longitude and latitude. 
+
+### Get data from GEE
+First, please go to [this link](https://code.earthengine.google.com/167114e1261294b0d7011f53695bf823) for the GEE script. **Note: No requirement on having a GEE account to run this script, but it does require a google account to store the export data.**
+
+Second, change the longitude and latitude coordiantes in line 33-43 to your own needs, and run the script by clicking the "Run" button.
+
+Third, go to "Tasks" panel, and click the "RUN" button in the row of the "exportEVI2" task. It will pop up a window with the detailed information of the task such as task name, export directory (has to be an google drive folder), and export filename and format. We will go with the default setting for this vignette. Click the "RUN" button of the window. 
+
+It might take several minutes for GEE to process the time series depending on the current availability of their cloud computing resource. After it's done, the export time series data file should be in your google drive folder. 
+
+### Process BLSP from the downloaded data
+
+Note: we don't have this GEE data included in our package, so the below code chunks will not have output when building the vignette.
+
+In R, load in the time series data file by:
+```{r gee-data, eval=FALSE}
+library(data.table)
+sample_data <- fread("sampleData.csv")
+```
+Using `head(sample_data)`, you will see it has 7 columns containing information of sensor type, date, longitude, latitude, point id, EVI2 value, and pixel QA value. 
+
+To process BLSP, we need to select a single time series out and omit all `NA` rows.
+```{r single-ts, eval=FALSE}
+# Select one single time series out
+single_ts <- sample_data[id == 1, .(date, evi2)]
+# Remember to remove NA rows before running the `blsp` package
+single_ts <- na.omit(single_ts)
+```
+
+Now, we can use the `blsp` package as usual. This code chunk might run for several minutes depending on how many years are in the time series.
+```{r fit-gee-data, eval=FALSE}
+# Fit the average model
+avg_fit <- FitAvgModel(
+  date_vec = single_ts$date,
+  vi_vec = single_ts$evi2
+)
+
+# Fit the BLSP model
+results <- FitBLSP(
+  date_vec = single_ts$date,
+  vi_vec = single_ts$evi2,
+  initValues = avg_fit,
+  verbose = TRUE
+)
+```
+
+Plot out the model fit:
+```{r plot-blsp-gee-data, eval=FALSE}
+fitted_dt <- PlotBLSP(results, if_return_fit = TRUE)
+```
+
+If you encounter any issues using the package, please feel free to [leave us an issue on Github](https://github.com/ncsuSEAL/Bayesian_LSP).
+
+
+

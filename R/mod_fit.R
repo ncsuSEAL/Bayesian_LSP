@@ -14,8 +14,9 @@
 #' @param vi_vec The vegetation index vector.
 #' @param weights_vec A numeric vector of same length as vi_vec specifying the 
 #' weights for the supplied observations. Must be between 0 and 1, inclusive.
-#' @param initValues Initial values for MCMC sampling. We get these values from 
-#' fitting the averaged model. It could also be `NULL`.
+#' @param initValues Initial values for MCMC sampling. By default, it is 
+#' assgined `NULL`. It could also be an object returned from the `FitAvgModel()` 
+#' function that fits an averaged model or a numeric vector provided by the user. 
 #' @param verbose logical. If `TRUE`, the progress will be reported.
 #' @return An object of class `BlspFit` will be returned. The object contains the
 #' estimated spring and autumn phenometrics for each year, the generated model 
@@ -53,9 +54,7 @@ FitBLSP <- function(date_vec, vi_vec,
     }
     # Convert data to jags format
     y <- vi_vec
-    t <- as.numeric(
-        date_vec - as.Date(paste0(lubridate::year(date_vec), "-01-01"))
-    ) + 1
+    t <- lubridate::yday(date_vec)
     n <- length(y) # total num of observations
     # year id vector
     yr <- lubridate::year(date_vec) - lubridate::year(date_vec)[1] + 1 
@@ -103,7 +102,7 @@ FitBLSP <- function(date_vec, vi_vec,
         tau_y ~ dgamma(0.1, 0.1)
     }"
 
-    if (!is.null(initValues)) {
+    if (!is.null(initValues) && class(initValues) == "nls") {
         p_m1 <- stats::coef(initValues)["m1"]
         p_m2 <- stats::coef(initValues)["m2"]
         p_m3 <- stats::coef(initValues)["m3"]
@@ -111,6 +110,19 @@ FitBLSP <- function(date_vec, vi_vec,
         p_m5 <- stats::coef(initValues)["m5"]
         p_m6 <- stats::coef(initValues)["m6"]
         p_m7 <- stats::coef(initValues)["m7"]
+    } else if (!is.null(initValues) && class(initValues) == "numeric") {
+        if (length(initValues) != 7) {
+            stop("The length of the initial values does not match",
+                "the number of model parameters."
+            )
+        }
+        p_m1 <- initValues[1]
+        p_m2 <- initValues[2]
+        p_m3 <- initValues[3]
+        p_m4 <- initValues[4]
+        p_m5 <- initValues[5]
+        p_m6 <- initValues[6]
+        p_m7 <- initValues[7]
     } else {
         p_m1 <- 0.05
         p_m2 <- 1

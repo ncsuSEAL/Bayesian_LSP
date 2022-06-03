@@ -21,8 +21,9 @@ format or use "yyyy-mm-dd" format string.}
 \item{weights_vec}{A numeric vector of same length as vi_vec specifying the
 weights for the supplied observations. Must be between 0 and 1, inclusive.}
 
-\item{initValues}{Initial values for MCMC sampling. We get these values from
-fitting the averaged model. It could also be \code{NULL}.}
+\item{initValues}{Initial values for MCMC sampling. By default, it is
+assgined \code{NULL}. It could also be an object returned from the \code{FitAvgModel()}
+function that fits an averaged model or a numeric vector provided by the user.}
 
 \item{verbose}{logical. If \code{TRUE}, the progress will be reported.}
 }
