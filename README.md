@@ -13,7 +13,7 @@ For the exact version in the paper, please go to the `release/reproduce_paper` b
 We use JAGS (Just Another Gibbs Sampler) software to conduct Markov Chain Monte Carlo (MCMC) sampling for the Bayesian model. Please install JAGS software before installing the `blsp` package. Please visit the [JAGS website](http://mcmc-jags.sourceforge.net/) for installation. Don't worry if you know nothing about JAGS, you don't even need to open it after installing. We use R to communicate with it.
 
 Next, in the R terminal, run:
-```
+```r
 devtools::install_github("ncsuSEAL/Bayesian_LSP", build_vignettes = TRUE)
 ```
 Afterwards, you can call the package using `library(blsp)`. Run `help(package = "blsp")` to see the vignettes and functions available in the package. 
