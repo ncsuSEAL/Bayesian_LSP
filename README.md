@@ -6,7 +6,8 @@ Welcome to the `blsp` R package for creating a Bayesian land surface phenology m
 For a more in-depth description, please read the paper: [Long-term, medium spatial resolution annual land surface phenology with a Bayesian hierarchical model](https://doi.org/10.1016/j.rse.2021.112484), with the citation:
 > Gao, X., Gray, J. M., & Reich, B. J. (2021). Long-term, medium spatial resolution annual land surface phenology with a Bayesian hierarchical model. Remote Sensing of Environment, 261, 112484. https://doi.org/10.1016/j.rse.2021.112484
 
-> **Note** 
+> **Note**
+> 
 > For the exact version in the paper, please go to the `release/reproduce_paper` branch.
 
 
@@ -37,7 +38,8 @@ And, the estimated phenometrics and their 95% credible intervals are stored in a
 For detailed introduction of the package usage, please use `help(package = "blsp")` to see the vignettes. We also provide Google Earth Engine script to help users get Landsat time series for any latitude and longitude points so that users can try the `blsp` package with minimal effort in preparing data (see the vignettes).
 
 > **Note** 
-> Unlike other land surface phenology products, we don't have QA/QC flags. The reason is, from our current experience, that the quality of the retrieved phenometrics can be indicated from the uncertainty. For example, if the uncertainty for a phenometric is very large, it indicates that the phenometric might be of low quality; otherwise, the pheometirc is trustable. This strategy may be changed based on future experiences with the BLSP model.
+>
+> Unlike other land surface phenology products, we don't have QA/QC flags. The reason is, from our current experience, that the quality of the retrieved phenometrics can be indicated from the uncertainty. For example, if the uncertainty for a phenometric is very large, it indicates that the phenometric might be of low quality; otherwise, the pheometirc is trustable. This strategy may be changed based on future experience with the BLSP model, though.
 
 
 # Docker
