@@ -7,6 +7,7 @@ pkgs <- c(
           "RColorBrewer",
           "viridis",
           "lubridate",
+          "ragg"
           "pkgdown",
           "profvis",
           "bench",
