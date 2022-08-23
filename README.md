@@ -10,6 +10,9 @@ For a more in-depth description, please read the paper: [Long-term, medium spati
 > 
 > For the exact version in the paper, please go to the `release/reproduce_paper` branch.
 
+To cite the package, please use:
+
+> Xiaojie Gao, Ian R. McGregor, Owen Smith, Isabella Hinks, & Matt Shisler. (2022). The blsp R package with a Bayesian land surface phenology model (1.0). Zenodo. https://doi.org/10.5281/zenodo.6824017
 
 ## How to install blsp package in R
 
