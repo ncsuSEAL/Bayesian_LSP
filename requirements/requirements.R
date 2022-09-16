@@ -11,6 +11,7 @@ pkgs <- c(
           "profvis",
           "bench",
           "miniUI",
+          "pkgdown",
           "devtools",
           "geojsonio",
           "geojsonR",
