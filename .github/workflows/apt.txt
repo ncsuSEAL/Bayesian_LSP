@@ -10,3 +10,5 @@ libgeos-dev
 libgdal-dev
 libv8-dev
 
+libharfbuzz-dev
+libfribidi-dev
