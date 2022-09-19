@@ -58,6 +58,12 @@ FitBLSP <- function(date_vec, vi_vec,
         stop("Please remove NAs in the input data.")
     }
 
+    # Reorder data to make sure they are sorted by time
+    od <- order(date_vec)
+    date_vec <- date_vec[od]
+    vi_vec <- vi_vec[od]
+    weights_vec <- weights_vec[od]
+
     # Convert data to jags format
     y <- vi_vec
     t <- lubridate::yday(date_vec)

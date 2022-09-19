@@ -135,7 +135,7 @@ Note: we don't have this GEE data included in our package as standalone data. In
 In R, load in the time series data file by:
 ```{r gee-data, eval=FALSE}
 library(data.table)
-sample_data <- fread("sampleData.csv")
+sample_data <- fread("gee/sampleData.csv")
 ```
 Using `head(sample_data)`, you will see it has 7 columns containing information of sensor type, date, longitude, latitude, point id, EVI2 value, and pixel QA value. 
 ```{r, ex1}
@@ -151,7 +151,7 @@ Using `head(sample_data)`, you will see it has 7 columns containing information 
 To run the BLSP model, let's select a single time series and omit all `NA` rows (important!).
 ```{r single-ts, eval=FALSE}
 # Select one single time series
-single_ts <- sample_data[id == 1, .(date, evi2)]
+single_ts <- sample_data[id == 3, .(date, evi2)]
 
 # Remember to remove NA rows before running the `blsp` package
 single_ts <- na.omit(single_ts)
@@ -166,7 +166,7 @@ head(single_ts)
 # 6: 1986-06-09 0.7066563
 ```
 
-Now, we can use the `blsp` package as usual. This code chunk might run for several minutes depending on how many years are in the time series.
+Now, we can use the `blsp` package as usual. This code chunk might run for several minutes depending on how many years are in the time series. Note that to get a better fit, you could assign weights to observations to indicate observation quality (assigning weights was described above). Here we omit the step to show the worst case.
 ```{r fit-gee-data, eval=FALSE}
 # Fit the average model
 avg_fit <- FitAvgModel(
