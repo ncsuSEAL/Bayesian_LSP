@@ -5,6 +5,8 @@
 
 .datatable.aware <- TRUE
 
+usethis::use_pipe(export = TRUE)
+
 # The double-logistic function equation
 model_str <- "m1 + (m2 - m7 * t) * ((1 / (1 + exp((m3 - t) / m4))) -
             (1 / (1 + exp((m5 - t) / m6))))"

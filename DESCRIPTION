@@ -13,7 +13,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Imports:
     coda,
     data.table,
@@ -26,7 +26,8 @@ Imports:
     minpack.lm,
     rjags,
     tools,
-    viridis
+    viridis,
+    magrittr
 Suggests:
     knitr,
     rmarkdown,

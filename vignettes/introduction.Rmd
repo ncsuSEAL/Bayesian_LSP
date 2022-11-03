@@ -117,7 +117,87 @@ str(results)
 
 
 ## Processing BLSP for your own data
-If you have your own data you want to use this package for, that's great! Otherwise, we've provided a simple way for users to obtain EVI2 time series data for their area(s) of interest via Google Earth Engine (GEE). Here we are using Landsats 5,7,8,9 Collection 2 Surface Reflectance data. **Note this method requires you have a Google account**.
+If you have your own data you want to use this package for, that's great! Otherwise, we've provided a simple way for users to obtain EVI2 time series data for their area(s) of interest via Google Earth Engine (GEE) and Microsoft Planetary Computer (MPC). Here we are using Landsats 5,7,8,9 Collection 2 Surface Reflectance data. **Note this method requires you have a Google account**.
+
+
+### Get data from Microsoft Planetary Computer
+Getting EVI2 time series using Microsoft Planetary Computer (MPC) is easy by using the functions we provide, you don't need to register an account, and you can do it in the R environment so it's good for keeping you code consistent. But, keep in mind that since PC is relatively new, the API may change which would make our functions throw errors in the future. Also, note that running the code in this section is going to take a while, so in the vignette, we only put the example code and the corresponding results rather than running the code each time you install the library. It will save some time, but the result may be different from what you get.
+
+To get EVI2 time series from MPC, you need to have point locations specified by longitude and latitude. Although our functions only do one point location at a time, you can do multiple points in a loop.
+
+```{r mpc-point-loc, eval = FALSE}
+# A point location specified by long/lat format
+# You MUST name the coordinates with `x` and `y` and put them into a data.frame
+pt_coords <- data.frame(x = -71.700975, y = 43.945733)
+```
+
+Then, you can specify the temporal period by a character string. And, since we use parallel procesing to process the data, you may specify the number of cores you want to use for parallel.
+
+```{r mpc-focal-dates, eval = FALSE}
+# Use the format of "start_date/end_date"
+focalDates <- "2010-01-01/2022-12-31"
+
+# Number of cores
+ncores <- 10
+```
+
+To get the data, you can use `GetEvi2PointTs()` function (it's going to take a while for the function to prepare the data, depending on how long the requested temperal period is and the internet speed).
+
+```{r mpc-get-data, eval = FALSE}
+evi2_dt <- GetEvi2PointTs(
+  pt_coords = pt_coords,
+  focalDates = focalDates,
+  ncores = ncores
+)
+```
+
+After the code is done, you can see the result in the `evi2_dt` object (note that we did not remove values with snow):
+```{r mpc-evi2-ts, eval = FALSE}
+head(evi2_dt)
+```
+
+```
+   img_id                          lon       lat      evi2      date       qa    snow
+1: LT05_L2SP_013029_20100109_02_T1 -71.70097 43.94573 0.1000716 2010-01-09 13600  TRUE
+2: LT05_L2SP_012030_20100307_02_T1 -71.70097 43.94573 0.1410364 2010-03-07  5440 FALSE
+3: LT05_L2SP_013029_20100415_02_T1 -71.70097 43.94573 0.1754859 2010-04-15  5440 FALSE
+4: LE07_L2SP_013029_20100423_02_T1 -71.70097 43.94573 0.2231386 2010-04-23  5440 FALSE
+5: LT05_L2SP_012030_20100424_02_T1 -71.70097 43.94573 0.2273574 2010-04-24  5440 FALSE
+6: LT05_L2SP_012030_20100510_02_T1 -71.70097 43.94573 0.5618129 2010-05-10  5440 FALSE
+```
+
+Once you get the EVI2 time series, you can process BLSP from the data as usual. The code might run for several minutes depending on the number of years in the time series.
+
+```{r mpc-blsp, eval=FALSE}
+# Remove snow
+evi2_dt <- evi2_dt[snow == FALSE, ]
+
+# Fit the average model
+avg_fit <- FitAvgModel(
+  date_vec = evi2_dt$date,
+  vi_vec = evi2_dt$evi2
+)
+
+# Fit the BLSP model
+results <- FitBLSP(
+  date_vec = evi2_dt$date,
+  vi_vec = evi2_dt$evi2,
+  initValues = avg_fit,
+  verbose = TRUE
+)
+```
+
+And plot out the model fit:
+```{r mpc-plot-blsp, eval=FALSE}
+png("mpcResults.png", width=1200, height=400)
+fitted_dt <- PlotBLSP(results, if_return_fit = TRUE)
+dev.off()
+```
+
+<img src="mpcResults.png" alt="Output model fit for GEE data" width="700"/>
+
+
+
 
 ### Get data from GEE
 First, please go to [this link](https://code.earthengine.google.com/7e2cdb594772506e296bda8411b05d20) for the GEE script. If the link does not work, please open a new [code browser](https://code.earthengine.googlecom) and copy/paste the script found [here](https://github.com/ncsuSEAL/Bayesian_LSP/blob/main/gee/getSampleData.js).
@@ -135,7 +215,7 @@ Note: we don't have this GEE data included in our package as standalone data. In
 In R, load in the time series data file by:
 ```{r gee-data, eval=FALSE}
 library(data.table)
-sample_data <- fread("gee/sampleData.csv")
+sample_data <- fread("sampleData.csv")
 ```
 Using `head(sample_data)`, you will see it has 7 columns containing information of sensor type, date, longitude, latitude, point id, EVI2 value, and pixel QA value. 
 ```{r, ex1}
@@ -151,7 +231,7 @@ Using `head(sample_data)`, you will see it has 7 columns containing information 
 To run the BLSP model, let's select a single time series and omit all `NA` rows (important!).
 ```{r single-ts, eval=FALSE}
 # Select one single time series
-single_ts <- sample_data[id == 3, .(date, evi2)]
+single_ts <- sample_data[id == 1, .(date, evi2)]
 
 # Remember to remove NA rows before running the `blsp` package
 single_ts <- na.omit(single_ts)
@@ -166,7 +246,7 @@ head(single_ts)
 # 6: 1986-06-09 0.7066563
 ```
 
-Now, we can use the `blsp` package as usual. This code chunk might run for several minutes depending on how many years are in the time series. Note that to get a better fit, you could assign weights to observations to indicate observation quality (assigning weights was described above). Here we omit the step to show the worst case.
+Now, we can use the `blsp` package as usual. This code chunk might run for several minutes depending on how many years are in the time series.
 ```{r fit-gee-data, eval=FALSE}
 # Fit the average model
 avg_fit <- FitAvgModel(
