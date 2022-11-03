@@ -131,17 +131,17 @@ To get EVI2 time series from MPC, you need to have point locations specified by 
 pt_coords <- data.frame(x = -71.700975, y = 43.945733)
 ```
 
-Then, you can specify the temporal period by a character string. And, since we use parallel procesing to process the data, you may specify the number of cores you want to use for parallel.
+Then, you can specify the temporal period by a character string. And, since we use parallel procesing to process the data, you may specify the number of cores you want to use for parallel. **Note that for processing speed, here in the example we are getting data for 6 years, as we know the BLSP model borrows information from other years, doing 6 years could yield relatively large uncertainty on the estimate depending on the data sparsity. So, once you are sure the code runs well on your machine, do multiple tests on the data side.** 
 
 ```{r mpc-focal-dates, eval = FALSE}
 # Use the format of "start_date/end_date"
-focalDates <- "2010-01-01/2022-12-31"
+focalDates <- "2011-01-01/2016-12-31"
 
 # Number of cores
 ncores <- 10
 ```
 
-To get the data, you can use `GetEvi2PointTs()` function (it's going to take a while for the function to prepare the data, depending on how long the requested temperal period is and the internet speed).
+To get the data, you can use `GetEvi2PointTs()` function (it's going to take around 5 minutes for the function to prepare the data, depending on how long the requested temperal period is and the internet speed).
 
 ```{r mpc-get-data, eval = FALSE}
 evi2_dt <- GetEvi2PointTs(
