@@ -8,13 +8,13 @@
 
 #' Calculate EVI2 values.
 #' 
-#' @param nir_band NIR band.
-#' @param red_band RED band.
+#' @param nir_val NIR band value.
+#' @param red_val RED band value.
 #' @return EVI2 values.
 #' @noRd
-CalEVI2 <- function(nir_band, red_band) {
-    red <- red_band * 0.0000275 - 0.2
-    nir <- nir_band * 0.0000275 - 0.2
+CalEVI2 <- function(nir_val, red_val) {
+    red <- red_val * 0.0000275 - 0.2
+    nir <- nir_val * 0.0000275 - 0.2
 
     evi2 <- 2.5 * ((nir - red) / (1 + nir + 2.4 * red))
 
@@ -160,24 +160,24 @@ GetEvi2PointTs <- function(pt_coords, focalDates = "1984-01-01/2022-12-31",
             row <- tryCatch({
                 # Red
                 red_band <- paste0("/vsicurl/", img$assets$red$href) %>%
-                    terra::rast() %>%
-                    terra::extract(pt) %>%
-                    as.numeric()
+                    terra::rast()
+                red_val <- terra::extract(red_band, pt)[, -1]
+                rm(red_band)
 
                 # Nir
                 nir_band <- paste0("/vsicurl/", img$assets$nir08$href) %>%
-                    terra::rast() %>%
-                    terra::extract(pt) %>%
-                    as.numeric()
+                    terra::rast()
+                nir_val <- terra::extract(nir_band, pt)[, -1]
+                rm(nir_band)
 
                 # QA
                 qa_band <- paste0("/vsicurl/", img$assets$qa_pixel$href) %>%
-                    terra::rast() %>%
-                    terra::extract(pt) %>%
-                    as.numeric()
+                    terra::rast()
+                qa_val <- terra::extract(qa_band, pt)[, -1]
+                rm(qa_band)
 
                 # Calculate EVI2
-                evi2 <- CalEVI2(nir_band, red_band)
+                evi2 <- CalEVI2(nir_val, red_val)
 
                 return(data.table::data.table(
                     img_id = img_id,
@@ -185,7 +185,7 @@ GetEvi2PointTs <- function(pt_coords, focalDates = "1984-01-01/2022-12-31",
                     lat = pt_coords$y,
                     evi2 = evi2,
                     date = date,
-                    qa = qa_band
+                    qa = qa_val
                 ))
 
             }, error = function(e) {
