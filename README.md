@@ -38,7 +38,7 @@ And, the estimated phenometrics and their 95% credible intervals are stored in a
 
 <img src="img/model_fit_phenos.png" alt="" width="500"/>
 
-For detailed introduction of the package usage, please use `help(package = "blsp")` to see the vignettes. We also provide Google Earth Engine script to help users get Landsat time series for any latitude and longitude points so that users can try the `blsp` package with minimal effort in preparing data (see the vignettes).
+For detailed introduction of the package usage, please use `help(package = "blsp")` to see the vignettes. We also provide Google Earth Engine javascript script and Microsoft Planetary Computer R functions to help users get Landsat time series for any latitude and longitude points so that users can try the `blsp` package with minimal effort in preparing data (see the vignettes).
 
 > **Note** 
 >
