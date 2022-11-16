@@ -44,6 +44,12 @@ For detailed introduction of the package usage, please use `help(package = "blsp
 >
 > Unlike other land surface phenology products, we don't have QA/QC flags. The reason is, from our current experience, that the quality of the retrieved phenometrics can be indicated from the uncertainty. For example, if the uncertainty for a phenometric is very large, it indicates that the phenometric might be of low quality; otherwise, the pheometirc is trustable. This strategy may be changed based on future experience with the BLSP model, though.
 
+# Known limitations
+Here are some limitations users frequently asked, we appreciate the feedback and want to notify future users to be aware of them. 
+
+- **Computing speed**. As the method uses Markov Chain Monte Carlo (MCMC) sampling to estimate model parameters, it requires some computing power and can be time consuming. This is the reason we do not provide functions for image processing in the package. For image processing, users need to run `blsp` on a super computer using parallel processing.
+- **Interannual variability**. As the algorithm computes a particular year's LSP by considering data available within the current year and using information from other years as prior, when data in the current year are very limited, especially for the seasonal transition periods, the prior information would get more weight in the final LSP calculation and thus the overall LSP time series may lack interannual variability. We encourage users to check the uncertainty of phenometrics in the `blsp` result as well as the fitted time series.
+
 
 # Docker
 The BLSP docker container installs the required R packages and JAGS.
