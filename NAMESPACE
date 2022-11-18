@@ -3,6 +3,7 @@
 export("%>%")
 export(FitAvgModel)
 export(FitBLSP)
+export(FitBLSP_spring)
 export(GetEvi2PointTs)
 export(PlotAvg)
 export(PlotBLSP)
