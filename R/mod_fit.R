@@ -1,7 +1,7 @@
-#************************************************************************************
+#*******************************************************************************
 # Description: Model fit functions.
 # Date: 2022-03-29
-#************************************************************************************
+#*******************************************************************************
 
 #' Fit a Bayesian mixed hierarchical land surface phenology model.
 #' 
@@ -285,6 +285,269 @@ FitBLSP <- function(date_vec, vi_vec,
     }
     return(blsp_fit)
 }
+
+
+#' Fit a Bayesian mixed hierarchical land surface phenology model. Spring only!
+#' Note that the result CANNOT be used to plot the fit.
+#' 
+#' This function fits a Bayesian mixed hierarchical land surface phenology model 
+#' to the supplied data (can be sparse), and returns phenometrics for the 
+#' entire time frame. For further explanation, please see the vignette.
+#' 
+#' @param date_vec The date vector, be sure to convert the vector to "Date" 
+#' format or use "yyyy-mm-dd" format string.
+#' @param vi_vec The vegetation index vector.
+#' @param weights_vec A numeric vector of same length as vi_vec specifying the 
+#' weights for the supplied observations. Must be between 0 and 1, inclusive.
+#' @param initValues Initial values for MCMC sampling. By default, it is 
+#' assgined `NULL`. It could also be an object returned from the `FitAvgModel()` 
+#' function that fits an averaged model or a numeric vector provided by the user. 
+#' @param verbose logical. If `TRUE`, the progress will be reported.
+#' @return An object of class `BlspFit` will be returned. The object contains the
+#' estimated spring and autumn phenometrics for each year, the generated model 
+#' parameter samples, and the input data.
+#' @examples
+#' \dontrun{
+#' data(landsatEVI2)
+#' blsp_fit <- FitBLSP(date_vec = landsatEVI2$date, vi_vec = landsatEVI2$evi2)
+#' }
+#' @export 
+#' @import data.table
+FitBLSP_spring <- function(date_vec, vi_vec, 
+    weights_vec = NULL, 
+    initValues = NULL, 
+    verbose = FALSE
+) {
+    # Check if date_vec is in Date format
+    if (sum(!is.na(lubridate::parse_date_time(date_vec, orders = "ymd"))) != 
+        length(date_vec)) {
+        stop("There're invalid Date values in the `date_vec`! 
+            Be sure to use `yyyy-mm-dd` format.")
+    }
+
+    # Check weights to be in the range of [0, 1]
+    if (!is.null(weights_vec)) {
+        if (min(weights_vec) < 0 | max(weights_vec) > 1) {
+            stop("Weights must be within [0, 1].")
+        }
+
+        # Check the length of dates, vis, and weights
+        if (length(weights_vec) != length(date_vec) |
+            length(vi_vec) != length(date_vec)) {
+            stop("date_vec, vi_vec, and weights_vec have different lengths.")
+        }
+    }
+
+    # Check NAs
+    if (any(is.na(date_vec)) | any(is.na(vi_vec))) {
+        stop("Please remove NAs in the input data.")
+    }
+
+    # Reorder data to make sure they are sorted by time
+    od <- order(date_vec)
+    date_vec <- date_vec[od]
+    vi_vec <- vi_vec[od]
+    weights_vec <- weights_vec[od]
+
+    # Convert data to jags format
+    y <- vi_vec
+    t <- lubridate::yday(date_vec)
+    n <- length(y) # total num of observations
+    # year id vector
+    yr <- lubridate::year(date_vec) - lubridate::year(date_vec)[1] + 1 
+    numYears <- length(unique(yr))
+
+    # If user specified weights
+    if (is.null(weights_vec)) {
+        weights_vec <- rep(1, n)
+    }
+
+    # ~ Format data, inits, and model
+    model_string <- "model {
+        # Likelihood
+        for (i in 1:n) {
+            Y[i] ~ dnorm(mu[i], tau_y)
+            mu[i] <- weights[i] * (m1[yr[i]] + (m2[yr[i]] - m7[yr[i]] * t[i]) * 
+                ((1 / (1 + exp((m3[yr[i]] - t[i]) / m4[yr[i]]))) - 
+                (1 / (1 + exp((m5[yr[i]] - t[i]) / m6[yr[i]])))))
+        }
+    
+        # Priors
+        for (j in 1:N) {
+            M1[j] ~ dnorm(mu_m1, tau[1])
+            logit(m1[j]) <- M1[j]
+            m2[j] ~ dnorm(mu_m2, tau[2])
+            m3[j] ~ dnorm(mu_m3, tau[3])
+            m4[j] ~ dnorm(mu_m4, tau[4])
+            m5[j] ~ dnorm(mu_m5, tau[5])
+            m6[j] ~ dnorm(mu_m6, tau[6])
+            M7[j] ~ dbeta(4, 4 * (1 - mu_m7 * 100) / (mu_m7 * 100))
+            m7[j] <- M7[j] / 100
+        }
+    
+        mu_m1 ~ dunif(0, 0.3)
+        mu_m2 ~ dunif(0.5, 2)
+        mu_m3 ~ dunif(0, 185)
+        mu_m4 ~ dunif(1, 15)
+        mu_m5 ~ dunif(185, 366)
+        mu_m6 ~ dunif(1, 15)
+        mu_m7 ~ dunif(0, 0.01)
+    
+        for (k in 1:7) {
+            tau[k] ~ dgamma(0.1, 0.1)
+        }
+        tau_y ~ dgamma(0.1, 0.1)
+    }"
+
+    if (!is.null(initValues) && class(initValues) == "nls") {
+        p_m1 <- stats::coef(initValues)["m1"]
+        p_m2 <- stats::coef(initValues)["m2"]
+        p_m3 <- stats::coef(initValues)["m3"]
+        p_m4 <- stats::coef(initValues)["m4"]
+        p_m5 <- stats::coef(initValues)["m5"]
+        p_m6 <- stats::coef(initValues)["m6"]
+        p_m7 <- stats::coef(initValues)["m7"]
+    } else if (!is.null(initValues) && class(initValues) == "numeric") {
+        if (length(initValues) != 7) {
+            stop("The length of the initial values does not match",
+                "the number of model parameters."
+            )
+        }
+        p_m1 <- initValues[1]
+        p_m2 <- initValues[2]
+        p_m3 <- initValues[3]
+        p_m4 <- initValues[4]
+        p_m5 <- initValues[5]
+        p_m6 <- initValues[6]
+        p_m7 <- initValues[7]
+    } else {
+        p_m1 <- 0.05
+        p_m2 <- 1
+        p_m3 <- 120
+        p_m4 <- 8
+        p_m5 <- 290
+        p_m6 <- 8
+        p_m7 <- 0.001
+    }
+
+    data <- list(Y = y, t = t, n = n, yr = yr, N = numYears, weights = weights_vec)
+
+    inits <- list(
+        M1 = rep(p_m1, numYears),
+        m2 = rep(p_m2, numYears), m3 = rep(p_m3, numYears),
+        m4 = rep(p_m4, numYears), m5 = rep(p_m5, numYears), 
+        m6 = rep(p_m6, numYears)
+    )
+
+    tryCatch(
+        {
+            if (verbose) {
+                message("Initialize model...")
+            }
+            pb_type <- ifelse(verbose, "text", "none")
+
+            model <- rjags::jags.model(textConnection(model_string),
+                data = data, inits = inits,
+                n.chains = 3, quiet = TRUE
+            )
+            stats::update(model, 2000, progress.bar = pb_type)
+
+            if (verbose) {
+                message("Sampling (could have multiple chains)...")
+            }
+
+            iteration_times <- 0
+            repeat {
+                samp <- rjags::coda.samples(model,
+                    variable.names = c("m2", "m3"),
+                    n.iter = 5000,
+                    thin = 10,
+                    progress.bar = pb_type
+                )
+                iteration_times <- iteration_times + 5000
+                
+                # Try to make it converge
+                if(coda::gelman.diag(samp)$mpsrf <= 1.3 | 
+                    iteration_times > 100000) {
+                    break
+                }
+            }
+            if (verbose) {
+                message("total interation times:", iteration_times)
+            }
+        },
+        error = function(e) {
+            years <- sort(unique(year(date_vec)))
+            bf_phenos <- NULL
+            for (i in 1:numYears) {
+                bf_phenos <- rbind(bf_phenos, list(
+                    Id = NA, Year = years[i],
+                    midgup_lower = NA, midgup = NA, midgup_upper = NA,
+                    midgdown_lower = NA, midgdown = NA, midgdown_upper = NA
+                ))
+            }
+            return(list(fitted = NA, phenos = bf_phenos))
+        }
+    )
+
+    # ~ Retrieve parameter estimates
+    if (verbose) {
+        message("Estimate phenometrics...")
+    }
+    m1 <- m2 <- m3 <- m4 <- m5 <- m6 <- m7 <- NULL
+    for (i in 1:numYears) {
+        m2 <- cbind(m2, c(samp[[1]][, paste0("m2", "[", i, "]")], 
+            samp[[2]][, paste0("m2", "[", i, "]")]))
+        m3 <- cbind(m3, c(samp[[1]][, paste0("m3", "[", i, "]")], 
+            samp[[2]][, paste0("m3", "[", i, "]")]))
+    }
+
+    m2_quan <- data.table::data.table(
+        apply(m2, 2, stats::quantile, c(0.05, 0.5, 0.95))
+    )
+    m3_quan <- data.table::data.table(
+        apply(m3, 2, stats::quantile, c(0.05, 0.5, 0.95))
+    )
+    
+    years <- sort(unique(lubridate::year(date_vec)))
+    bf_phenos <- NULL
+    for (i in 1:numYears) {
+        if (m2_quan[2, ][[i]] > 0.4) { # suppress some amplitude-too-low year
+            bf_phenos <- rbind(bf_phenos, data.table::data.table(
+                Year = years[i],
+                midgup_lower = m3_quan[1, ][[i]], 
+                midgup = m3_quan[2, ][[i]], 
+                midgup_upper = m3_quan[3, ][[i]]
+            ))
+        } else {
+            bf_phenos <- rbind(bf_phenos, data.table::data.table(
+                Year = years[i],
+                midgup_lower = NA, 
+                midgup = NA, 
+                midgup_upper = NA
+            ))
+        }
+    }
+
+    # Construct `blsp_fit` object to return
+    blsp_fit <- list(
+        phenos = bf_phenos,
+        params = list(m2 = m2, m3 = m3),
+        data = data.table::data.table(
+            date = date_vec, 
+            vi = vi_vec, 
+            weights = weights_vec
+        )
+    )
+    class(blsp_fit) <- "BlspFit"
+
+    if (verbose) {
+        message("Done!")
+    }
+    return(blsp_fit)
+}
+
+
 
 
 #' Generate pheno from the predicted curve.
