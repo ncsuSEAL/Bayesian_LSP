@@ -9,7 +9,9 @@ FitBLSP(
   vi_vec,
   weights_vec = NULL,
   initValues = NULL,
-  verbose = FALSE
+  verbose = FALSE,
+  start_yr = NULL,
+  end_yr = NULL
 )
 }
 \arguments{
@@ -26,6 +28,12 @@ assgined \code{NULL}. It could also be an object returned from the \code{FitAvgM
 function that fits an averaged model or a numeric vector provided by the user.}
 
 \item{verbose}{logical. If \code{TRUE}, the progress will be reported.}
+
+\item{start_yr}{The start year of the result. Default is NULL, which means
+determined by data.}
+
+\item{end_yr}{The end year of the result. Default is NULL, which means
+determined by data.}
 }
 \value{
 An object of class \code{BlspFit} will be returned. The object contains the

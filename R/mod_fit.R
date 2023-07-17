@@ -3,6 +3,44 @@
 # Date: 2022-03-29
 #*******************************************************************************
 
+#' Format empty BLSP output to return
+#'
+#' @param years The years vector
+#' @param date_vec The date vector, be sure to convert the vector to "Date"
+#' format or use "yyyy-mm-dd" format string.
+#' @param vi_vec The vegetation index vector.
+#' @param weights_vec A numeric vector of same length as vi_vec specifying the
+#' weights for the supplied observations. Must be between 0 and 1, inclusive.
+#' 
+#' @return An empty BLSP class object.
+#'
+#' @noRd
+EmptyBlspOutput <- function(years, date_vec, vi_vec, weights_vec) {
+    bf_phenos <- data.table(
+        Year = years,
+        midgup_lower = NA, midgup = NA, midgup_upper = NA,
+        midgdown_lower = NA, midgdown = NA, midgdown_upper = NA
+    )
+    bf_phenos[,
+        colnames(bf_phenos) := lapply(.SD, as.numeric),
+        .SDcols = colnames(bf_phenos)
+    ]
+
+    blsp_fit <- list(
+        phenos = bf_phenos,
+        params = NULL,
+        data = data.table::data.table(
+            date = date_vec,
+            vi = vi_vec,
+            weights = weights_vec
+        )
+    )
+    class(blsp_fit) <- "BlspFit"
+
+    return(blsp_fit)
+}
+
+
 #' Fit a Bayesian mixed hierarchical land surface phenology model.
 #' 
 #' This function fits a Bayesian mixed hierarchical land surface phenology model 
@@ -18,6 +56,11 @@
 #' assgined `NULL`. It could also be an object returned from the `FitAvgModel()` 
 #' function that fits an averaged model or a numeric vector provided by the user. 
 #' @param verbose logical. If `TRUE`, the progress will be reported.
+#' @param start_yr The start year of the result. Default is NULL, which means
+#' determined by data.
+#' @param end_yr The end year of the result. Default is NULL, which means
+#' determined by data.
+#' 
 #' @return An object of class `BlspFit` will be returned. The object contains the
 #' estimated spring and autumn phenometrics for each year, the generated model 
 #' parameter samples, and the input data.
@@ -31,7 +74,8 @@
 FitBLSP <- function(date_vec, vi_vec, 
     weights_vec = NULL, 
     initValues = NULL, 
-    verbose = FALSE
+    verbose = FALSE,
+    start_yr = NULL, end_yr = NULL
 ) {
     # Check if date_vec is in Date format
     if (sum(!is.na(lubridate::parse_date_time(date_vec, orders = "ymd"))) != 
@@ -69,9 +113,15 @@ FitBLSP <- function(date_vec, vi_vec,
     t <- lubridate::yday(date_vec)
     n <- length(y) # total num of observations
     # year id vector
-    yr <- lubridate::year(date_vec) - lubridate::year(date_vec)[1] + 1 
-    numYears <- length(unique(yr))
-
+    if (is.null(start_yr) || is.null(end_yr)) {
+        yr <- lubridate::year(date_vec) - lubridate::year(date_vec)[1] + 1
+        years <- sort(unique(year(date_vec)))
+        numYears <- length(unique(yr))
+    } else {
+        yr <- start_yr:end_yr - end_yr + 1
+        years <- start_yr:end_yr
+        numYears <- length(yr)
+    }
     # If user specified weights
     if (is.null(weights_vec)) {
         weights_vec <- rep(1, n)
@@ -145,7 +195,9 @@ FitBLSP <- function(date_vec, vi_vec,
         p_m7 <- 0.001
     }
 
-    data <- list(Y = y, t = t, n = n, yr = yr, N = numYears, weights = weights_vec)
+    data <- list(
+        Y = y, t = t, n = n, yr = yr, N = numYears, weights = weights_vec
+    )
 
     inits <- list(
         M1 = rep(p_m1, numYears),
@@ -154,7 +206,7 @@ FitBLSP <- function(date_vec, vi_vec,
         m6 = rep(p_m6, numYears)
     )
 
-    tryCatch(
+    blsp_fit <- tryCatch(
         {
             if (verbose) {
                 message("Initialize model...")
@@ -174,115 +226,117 @@ FitBLSP <- function(date_vec, vi_vec,
             iteration_times <- 0
             repeat {
                 samp <- rjags::coda.samples(model,
-                    variable.names = c("m1", "m2", "m3", "m4", "m5", "m6", "m7"),
+                    variable.names = c(
+                        "m1", "m2", "m3", "m4", "m5", "m6", "m7"
+                    ),
                     n.iter = 5000,
                     thin = 10,
                     progress.bar = pb_type
                 )
                 iteration_times <- iteration_times + 5000
-                
+
                 # Try to make it converge
-                if(coda::gelman.diag(samp)$mpsrf <= 1.3 | 
-                    iteration_times > 100000) {
+                if (coda::gelman.diag(samp)$mpsrf <= 1.3 |
+                    iteration_times > 50000) {
                     break
                 }
             }
             if (verbose) {
                 message("total interation times:", iteration_times)
             }
-        },
-        error = function(e) {
-            years <- sort(unique(year(date_vec)))
-            bf_phenos <- NULL
+
+            # ~ Retrieve parameter estimates
+            if (verbose) {
+                message("Estimate phenometrics...")
+            }
+            m1 <- m2 <- m3 <- m4 <- m5 <- m6 <- m7 <- NULL
             for (i in 1:numYears) {
-                bf_phenos <- rbind(bf_phenos, list(
-                    Id = NA, Year = years[i],
-                    midgup_lower = NA, midgup = NA, midgup_upper = NA,
-                    midgdown_lower = NA, midgdown = NA, midgdown_upper = NA
+                m1 <- cbind(m1, c(
+                    samp[[1]][, paste0("m1", "[", i, "]")],
+                    samp[[2]][, paste0("m1", "[", i, "]")]
+                ))
+                m2 <- cbind(m2, c(
+                    samp[[1]][, paste0("m2", "[", i, "]")],
+                    samp[[2]][, paste0("m2", "[", i, "]")]
+                ))
+                m3 <- cbind(m3, c(
+                    samp[[1]][, paste0("m3", "[", i, "]")],
+                    samp[[2]][, paste0("m3", "[", i, "]")]
+                ))
+                m4 <- cbind(m4, c(
+                    samp[[1]][, paste0("m4", "[", i, "]")],
+                    samp[[2]][, paste0("m4", "[", i, "]")]
+                ))
+                m5 <- cbind(m5, c(
+                    samp[[1]][, paste0("m5", "[", i, "]")],
+                    samp[[2]][, paste0("m5", "[", i, "]")]
+                ))
+                m6 <- cbind(m6, c(
+                    samp[[1]][, paste0("m6", "[", i, "]")],
+                    samp[[2]][, paste0("m6", "[", i, "]")]
+                ))
+                m7 <- cbind(m7, c(
+                    samp[[1]][, paste0("m7", "[", i, "]")],
+                    samp[[2]][, paste0("m7", "[", i, "]")]
                 ))
             }
-            return(list(fitted = NA, phenos = bf_phenos))
+
+            m1_quan <- data.table::data.table(
+                apply(m1, 2, stats::quantile, c(0.05, 0.5, 0.95))
+            )
+            m2_quan <- data.table::data.table(
+                apply(m2, 2, stats::quantile, c(0.05, 0.5, 0.95))
+            )
+            m3_quan <- data.table::data.table(
+                apply(m3, 2, stats::quantile, c(0.05, 0.5, 0.95))
+            )
+            m5_quan <- data.table::data.table(
+                apply(m5, 2, stats::quantile, c(0.05, 0.5, 0.95))
+            )
+
+            
+            # Construct `blsp_fit` object to return
+            blsp_fit <- EmptyBlspOutput(years, date_vec, vi_vec, weights_vec)
+            
+            for (i in 1:numYears) {
+                # suppress some amplitude-too-low year
+                if (m2_quan[2, ][[i]] > 0.4) {                    
+                    blsp_fit$phenos[
+                        i, 
+                        colnames(blsp_fit$phenos) := list(
+                            Year = years[i],
+                            midgup_lower = m3_quan[1, ][[i]],
+                            midgup = m3_quan[2, ][[i]],
+                            midgup_upper = m3_quan[3, ][[i]],
+                            midgdown_lower = m5_quan[1, ][[i]],
+                            midgdown = m5_quan[2, ][[i]],
+                            midgdown_upper = m5_quan[3, ][[i]]
+                        )
+                    ]
+                }
+            }
+
+            blsp_fit$params <- list(
+                m1 = m1, m2 = m2, m3 = m3,
+                m4 = m4, m5 = m5, m6 = m6, m7 = m7
+            )
+
+            if (verbose) {
+                message("Done!")
+            }
+
+            blsp_fit
+        },
+        error = function(e) {
+            if (verbose) {
+                message("Something went wrong!")
+            }
+            blsp_fit <- EmptyBlspOutput(years, date_vec, vi_vec, weights_vec)
+
+            return(blsp_fit)
         }
     )
 
-    # ~ Retrieve parameter estimates
-    if (verbose) {
-        message("Estimate phenometrics...")
-    }
-    m1 <- m2 <- m3 <- m4 <- m5 <- m6 <- m7 <- NULL
-    for (i in 1:numYears) {
-        m1 <- cbind(m1, c(samp[[1]][, paste0("m1", "[", i, "]")], 
-            samp[[2]][, paste0("m1", "[", i, "]")]))
-        m2 <- cbind(m2, c(samp[[1]][, paste0("m2", "[", i, "]")], 
-            samp[[2]][, paste0("m2", "[", i, "]")]))
-        m3 <- cbind(m3, c(samp[[1]][, paste0("m3", "[", i, "]")], 
-            samp[[2]][, paste0("m3", "[", i, "]")]))
-        m4 <- cbind(m4, c(samp[[1]][, paste0("m4", "[", i, "]")], 
-            samp[[2]][, paste0("m4", "[", i, "]")]))
-        m5 <- cbind(m5, c(samp[[1]][, paste0("m5", "[", i, "]")], 
-            samp[[2]][, paste0("m5", "[", i, "]")]))
-        m6 <- cbind(m6, c(samp[[1]][, paste0("m6", "[", i, "]")], 
-            samp[[2]][, paste0("m6", "[", i, "]")]))
-        m7 <- cbind(m7, c(samp[[1]][, paste0("m7", "[", i, "]")], 
-            samp[[2]][, paste0("m7", "[", i, "]")]))
-    }
-
-    m1_quan <- data.table::data.table(
-        apply(m1, 2, stats::quantile, c(0.05, 0.5, 0.95))
-    )
-    m2_quan <- data.table::data.table(
-        apply(m2, 2, stats::quantile, c(0.05, 0.5, 0.95))
-    )
-    m3_quan <- data.table::data.table(
-        apply(m3, 2, stats::quantile, c(0.05, 0.5, 0.95))
-    )
-    m5_quan <- data.table::data.table(
-        apply(m5, 2, stats::quantile, c(0.05, 0.5, 0.95))
-    )
-    
-    years <- sort(unique(lubridate::year(date_vec)))
-    bf_phenos <- NULL
-    for (i in 1:numYears) {
-        if (m2_quan[2, ][[i]] > 0.4) { # suppress some amplitude-too-low year
-            bf_phenos <- rbind(bf_phenos, data.table::data.table(
-                Year = years[i],
-                midgup_lower = m3_quan[1, ][[i]], 
-                midgup = m3_quan[2, ][[i]], 
-                midgup_upper = m3_quan[3, ][[i]],
-                midgdown_lower = m5_quan[1, ][[i]], 
-                midgdown = m5_quan[2, ][[i]], 
-                midgdown_upper = m5_quan[3, ][[i]]
-            ))
-        } else {
-            bf_phenos <- rbind(bf_phenos, data.table::data.table(
-                Year = years[i],
-                midgup_lower = NA, 
-                midgup = NA, 
-                midgup_upper = NA,
-                midgdown_lower = NA, 
-                midgdown = NA, 
-                midgdown_upper = NA
-            ))
-        }
-    }
-
-    # Construct `blsp_fit` object to return
-    blsp_fit <- list(
-        phenos = bf_phenos,
-        params = list(m1 = m1, m2 = m2, m3 = m3, 
-            m4 = m4, m5 = m5, m6 = m6, m7 = m7
-        ),
-        data = data.table::data.table(
-            date = date_vec, 
-            vi = vi_vec, 
-            weights = weights_vec
-        )
-    )
-    class(blsp_fit) <- "BlspFit"
-
-    if (verbose) {
-        message("Done!")
-    }
     return(blsp_fit)
 }
 
@@ -430,7 +484,9 @@ FitBLSP_spring <- function(date_vec, vi_vec,
         p_m7 <- 0.001
     }
 
-    data <- list(Y = y, t = t, n = n, yr = yr, N = numYears, weights = weights_vec)
+    data <- list(
+        Y = y, t = t, n = n, yr = yr, N = numYears, weights = weights_vec
+    )
 
     inits <- list(
         M1 = rep(p_m1, numYears),

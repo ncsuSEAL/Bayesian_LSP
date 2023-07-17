@@ -49,7 +49,7 @@ LandsatCloudSnowQA <- function(x) {
 #' 
 #' @param pt_coords Point location. Longitude and latitude.
 #' @param focalDates Temporal period. 
-#' @param ncore Number of cores used to parallel the process.
+#' @param ncores Number of cores used to parallel the process.
 #' @return A data.table containing EVI2 time series along with QA values. 
 #' @export
 #' @import data.table

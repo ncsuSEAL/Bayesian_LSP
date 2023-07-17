@@ -27,7 +27,9 @@ Imports:
     rjags,
     tools,
     viridis,
-    magrittr
+    magrittr,
+    terra,
+    rstac
 Suggests:
     knitr,
     rmarkdown,
