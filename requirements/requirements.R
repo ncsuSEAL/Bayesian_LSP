@@ -17,7 +17,8 @@ pkgs <- c(
           "geojsonR",
           "getPass",
           "minpack.lm",
-          "rstac"
+          "rstac",
+          "terra"
           )
 
 install.packages(pkgs, repos='http://cran.us.r-project.org', dependencies=TRUE)
