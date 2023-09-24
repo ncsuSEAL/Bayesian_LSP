@@ -1,5 +1,6 @@
 jags
-gdal
+gdal-bin
+libgdal-dev
 libcurl4-openssl-dev
 libssl-dev
 libxml2-dev
