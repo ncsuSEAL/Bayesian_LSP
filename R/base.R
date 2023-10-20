@@ -1,7 +1,7 @@
-#************************************************************************************
+#*******************************************************************************
 # Description: Needed library and pre-defined functions
 # Date: 2020-11-22
-#************************************************************************************
+#*******************************************************************************
 
 .datatable.aware <- TRUE
 
@@ -62,9 +62,9 @@ FormatAvgData <- function(date_vec, vi_vec) {
         evi2 = vi_vec,
         avg_date = ""
     )
-    vi_dt$avg_date <- as.Date(paste0("1970", substr(vi_dt$date, 5, 10)))
+    vi_dt[, avg_date := as.Date(paste0("1970", substr(vi_dt$date, 5, 10)))]
     vi_dt <- stats::na.omit(vi_dt)
-    vi_dt <- data.table::setorder(vi_dt, date)
+    data.table::setorder(vi_dt, date)
 
     # Find unique dates in the averaged year
     unique_dates <- unique(vi_dt$avg_date)

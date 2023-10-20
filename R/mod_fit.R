@@ -115,12 +115,13 @@ FitBLSP <- function(date_vec, vi_vec,
     # year id vector
     if (is.null(start_yr) || is.null(end_yr)) {
         yr <- lubridate::year(date_vec) - lubridate::year(date_vec)[1] + 1
-        years <- sort(unique(year(date_vec)))
-        numYears <- length(unique(yr))
+        tmp <- sort(unique(year(date_vec)))
+        years <- tmp[1]:tmp[length(tmp)]
+        numYears <- length(1:yr[length(yr)])
     } else {
-        yr <- start_yr:end_yr - end_yr + 1
+        yr <- lubridate::year(date_vec) - lubridate::year(date_vec)[1] + 1
         years <- start_yr:end_yr
-        numYears <- length(yr)
+        numYears <- length(years)
     }
     # If user specified weights
     if (is.null(weights_vec)) {
