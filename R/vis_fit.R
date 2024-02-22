@@ -141,9 +141,10 @@ PlotBLSP <- function(blsp_fit, if_return_fit = FALSE) {
             predCI <- cbind(predCI, pred)
         }
 
+        alpha <- (1-blsp_fit$cred_int_level)/2
         predCI <- t(data.table::data.table(
             apply(predCI, 1, function(x) {
-                stats::quantile(x, c(0.025, 0.975))
+                stats::quantile(x, c(alpha, 1-alpha))
             }
         )))
 
