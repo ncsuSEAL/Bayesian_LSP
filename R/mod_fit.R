@@ -81,7 +81,7 @@ FitBLSP <- function(date_vec, vi_vec,
     initValues = NULL, 
     cred_int_level = 0.9,
     verbose = FALSE,
-    start_yr = NULL, end_yr = NULL,
+    start_yr = NULL, end_yr = NULL
 ) {
     # Check if date_vec is in Date format
     if (sum(!is.na(lubridate::parse_date_time(date_vec, orders = "ymd"))) != 
