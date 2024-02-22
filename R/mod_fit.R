@@ -60,6 +60,11 @@ EmptyBlspOutput <- function(years, date_vec, vi_vec, weights_vec) {
 #' determined by data.
 #' @param end_yr The end year of the result. Default is NULL, which means
 #' determined by data.
+#' @param cred_int_level A scalar value from 0 to 1 (exclusive) that specifies
+#' the level for equal-tailed credible intervals of the estimated phenometrics.
+#' The default level is 0.9, generating `90%` credible intervals. The end
+#' points of these intervals define the upper and lower bounds for the estimated
+#' phenometrics.
 #' 
 #' @return An object of class `BlspFit` will be returned. The object contains the
 #' estimated spring and autumn phenometrics for each year, the generated model 
@@ -74,8 +79,9 @@ EmptyBlspOutput <- function(years, date_vec, vi_vec, weights_vec) {
 FitBLSP <- function(date_vec, vi_vec, 
     weights_vec = NULL, 
     initValues = NULL, 
+    cred_int_level = 0.9,
     verbose = FALSE,
-    start_yr = NULL, end_yr = NULL
+    start_yr = NULL, end_yr = NULL,
 ) {
     # Check if date_vec is in Date format
     if (sum(!is.na(lubridate::parse_date_time(date_vec, orders = "ymd"))) != 
@@ -102,6 +108,11 @@ FitBLSP <- function(date_vec, vi_vec,
         stop("Please remove NAs in the input data.")
     }
 
+    # Check if credible interval level is valid
+    if (cred_int <= 0 | cred_int >= 1) {
+      stop("Credible interval level must be a value between 0 and 1 (exclusive).")
+    }
+  
     # Reorder data to make sure they are sorted by time
     od <- order(date_vec)
     date_vec <- date_vec[od]
@@ -282,17 +293,18 @@ FitBLSP <- function(date_vec, vi_vec,
                 ))
             }
 
+            alpha <- (1-cred_int_level)/2
             m1_quan <- data.table::data.table(
-                apply(m1, 2, stats::quantile, c(0.05, 0.5, 0.95))
+                apply(m1, 2, stats::quantile, c(alpha, 0.5, 1-alpha))
             )
             m2_quan <- data.table::data.table(
-                apply(m2, 2, stats::quantile, c(0.05, 0.5, 0.95))
+                apply(m2, 2, stats::quantile, c(alpha, 0.5, 1-alpha))
             )
             m3_quan <- data.table::data.table(
-                apply(m3, 2, stats::quantile, c(0.05, 0.5, 0.95))
+                apply(m3, 2, stats::quantile, c(alpha, 0.5, 1-alpha))
             )
             m5_quan <- data.table::data.table(
-                apply(m5, 2, stats::quantile, c(0.05, 0.5, 0.95))
+                apply(m5, 2, stats::quantile, c(alpha, 0.5, 1-alpha))
             )
 
             
@@ -357,6 +369,11 @@ FitBLSP <- function(date_vec, vi_vec,
 #' @param initValues Initial values for MCMC sampling. By default, it is 
 #' assgined `NULL`. It could also be an object returned from the `FitAvgModel()` 
 #' function that fits an averaged model or a numeric vector provided by the user. 
+#' @param cred_int_level A scalar value from 0 to 1 (exclusive) that specifies
+#' the level for equal-tailed credible intervals of the estimated phenometrics.
+#' The default level is 0.9, generating `90%` credible intervals. The end
+#' points of these intervals define the upper and lower bounds for the estimated
+#' phenometrics.
 #' @param verbose logical. If `TRUE`, the progress will be reported.
 #' @return An object of class `BlspFit` will be returned. The object contains the
 #' estimated spring and autumn phenometrics for each year, the generated model 
@@ -370,7 +387,8 @@ FitBLSP <- function(date_vec, vi_vec,
 #' @import data.table
 FitBLSP_spring <- function(date_vec, vi_vec, 
     weights_vec = NULL, 
-    initValues = NULL, 
+    initValues = NULL,
+    cred_int_level = 0.9,
     verbose = FALSE
 ) {
     # Check if date_vec is in Date format
@@ -397,7 +415,11 @@ FitBLSP_spring <- function(date_vec, vi_vec,
     if (any(is.na(date_vec)) | any(is.na(vi_vec))) {
         stop("Please remove NAs in the input data.")
     }
-
+    
+    # Check if credible interval level is valid
+    if (cred_int <= 0 | cred_int >= 1) {
+      stop("Credible interval level must be a value between 0 and 1 (exclusive).")
+    }
     # Reorder data to make sure they are sorted by time
     od <- order(date_vec)
     date_vec <- date_vec[od]
@@ -559,11 +581,12 @@ FitBLSP_spring <- function(date_vec, vi_vec,
             samp[[2]][, paste0("m3", "[", i, "]")]))
     }
 
+    alpha <- (1-cred_int_level)/2
     m2_quan <- data.table::data.table(
-        apply(m2, 2, stats::quantile, c(0.05, 0.5, 0.95))
+        apply(m2, 2, stats::quantile, c(alpha, 0.5, 1-alpha))
     )
     m3_quan <- data.table::data.table(
-        apply(m3, 2, stats::quantile, c(0.05, 0.5, 0.95))
+        apply(m3, 2, stats::quantile, c(alpha, 0.5, 1-alpha))
     )
     
     years <- sort(unique(lubridate::year(date_vec)))
