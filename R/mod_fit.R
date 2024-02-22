@@ -11,11 +11,16 @@
 #' @param vi_vec The vegetation index vector.
 #' @param weights_vec A numeric vector of same length as vi_vec specifying the
 #' weights for the supplied observations. Must be between 0 and 1, inclusive.
+#' @param cred_int_level A scalar value from 0 to 1 (exclusive) that specifies
+#' the level for equal-tailed credible intervals of the estimated phenometrics.
+#' The default level is 0.9, generating `90%` credible intervals. The end
+#' points of these intervals define the upper and lower bounds for the estimated
+#' phenometrics.
 #' 
 #' @return An empty BLSP class object.
 #'
 #' @noRd
-EmptyBlspOutput <- function(years, date_vec, vi_vec, weights_vec) {
+EmptyBlspOutput <- function(years, date_vec, vi_vec, weights_vec, cred_int_level) {
     bf_phenos <- data.table(
         Year = years,
         midgup_lower = NA, midgup = NA, midgup_upper = NA,
@@ -33,7 +38,8 @@ EmptyBlspOutput <- function(years, date_vec, vi_vec, weights_vec) {
             date = date_vec,
             vi = vi_vec,
             weights = weights_vec
-        )
+        ),
+        cred_int_level = cred_int_level
     )
     class(blsp_fit) <- "BlspFit"
 
@@ -109,7 +115,7 @@ FitBLSP <- function(date_vec, vi_vec,
     }
 
     # Check if credible interval level is valid
-    if (cred_int <= 0 | cred_int >= 1) {
+    if (cred_int_level <= 0 | cred_int_level >= 1) {
       stop("Credible interval level must be a value between 0 and 1 (exclusive).")
     }
   
@@ -309,7 +315,7 @@ FitBLSP <- function(date_vec, vi_vec,
 
             
             # Construct `blsp_fit` object to return
-            blsp_fit <- EmptyBlspOutput(years, date_vec, vi_vec, weights_vec)
+            blsp_fit <- EmptyBlspOutput(years, date_vec, vi_vec, weights_vec, cred_int_level)
             
             for (i in 1:numYears) {
                 # suppress some amplitude-too-low year
@@ -344,7 +350,7 @@ FitBLSP <- function(date_vec, vi_vec,
             if (verbose) {
                 message("Something went wrong!")
             }
-            blsp_fit <- EmptyBlspOutput(years, date_vec, vi_vec, weights_vec)
+            blsp_fit <- EmptyBlspOutput(years, date_vec, vi_vec, weights_vec, cred_int_level)
 
             return(blsp_fit)
         }
@@ -417,7 +423,7 @@ FitBLSP_spring <- function(date_vec, vi_vec,
     }
     
     # Check if credible interval level is valid
-    if (cred_int <= 0 | cred_int >= 1) {
+    if (cred_int_level <= 0 | cred_int_level >= 1) {
       stop("Credible interval level must be a value between 0 and 1 (exclusive).")
     }
     # Reorder data to make sure they are sorted by time
@@ -617,7 +623,8 @@ FitBLSP_spring <- function(date_vec, vi_vec,
             date = date_vec, 
             vi = vi_vec, 
             weights = weights_vec
-        )
+        ),
+        cred_int_level = cred_int_level
     )
     class(blsp_fit) <- "BlspFit"
 
