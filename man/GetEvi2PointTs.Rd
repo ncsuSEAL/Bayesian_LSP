@@ -12,7 +12,7 @@ GetEvi2PointTs(pt_coords, focalDates = "1984-01-01/2022-12-31", ncores = 1)
 
 \item{focalDates}{Temporal period.}
 
-\item{ncore}{Number of cores used to parallel the process.}
+\item{ncores}{Number of cores used to parallel the process.}
 }
 \value{
 A data.table containing EVI2 time series along with QA values.

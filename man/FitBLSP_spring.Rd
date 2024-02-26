@@ -10,6 +10,7 @@ FitBLSP_spring(
   vi_vec,
   weights_vec = NULL,
   initValues = NULL,
+  cred_int_level = 0.9,
   verbose = FALSE
 )
 }
@@ -25,6 +26,12 @@ weights for the supplied observations. Must be between 0 and 1, inclusive.}
 \item{initValues}{Initial values for MCMC sampling. By default, it is
 assgined \code{NULL}. It could also be an object returned from the \code{FitAvgModel()}
 function that fits an averaged model or a numeric vector provided by the user.}
+
+\item{cred_int_level}{A scalar value from 0 to 1 (exclusive) that specifies
+the level for equal-tailed credible intervals of the estimated phenometrics.
+The default level is 0.9, generating \verb{90\%} credible intervals. The end
+points of these intervals define the upper and lower bounds for the estimated
+phenometrics.}
 
 \item{verbose}{logical. If \code{TRUE}, the progress will be reported.}
 }

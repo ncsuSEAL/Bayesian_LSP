@@ -103,7 +103,8 @@ PlotBLSP <- function(blsp_fit, if_return_fit = FALSE) {
     bf_phenos <- blsp_fit$phenos
     yr <- lubridate::year(date_vec) - lubridate::year(date_vec)[1] + 1
     numYears <- length(unique(yr))
-
+    disp_cred_int_level <- round(blsp_fit$cred_int_level*100)
+    
     #~ Predict fitted value for full dates ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     bf_pred <- NULL
     years <- sort(unique(lubridate::year(date_vec)))
@@ -140,9 +141,10 @@ PlotBLSP <- function(blsp_fit, if_return_fit = FALSE) {
             predCI <- cbind(predCI, pred)
         }
 
+        alpha <- (1-blsp_fit$cred_int_level)/2
         predCI <- t(data.table::data.table(
             apply(predCI, 1, function(x) {
-                stats::quantile(x, c(0.025, 0.975))
+                stats::quantile(x, c(alpha, 1-alpha))
             }
         )))
 
@@ -202,8 +204,9 @@ PlotBLSP <- function(blsp_fit, if_return_fit = FALSE) {
         pch = c(16, NA, 16, 15, 16, NA),
         col = c("black", "red", pheno_colors[1], 
             Transparent("red", 0.2), pheno_colors[2], "black"),
-        legend = c("Observations", "Median Fit", "SOS", "95% C.I. of fit", 
-            "EOS", "95% C.I. of phenometrics"),
+        legend = c("Observations", "Median Fit", "SOS", 
+            paste0(disp_cred_int_level, "% C.I. of fit"), 
+            "EOS", paste0(disp_cred_int_level, "% C.I. of phenometrics")),
         xpd = NA
     )
     graphics::legend("bottomright", bty = "n", 

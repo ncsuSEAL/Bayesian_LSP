@@ -73,4 +73,3 @@ We thank the following people for their assistance with the creation of this pac
 ---
 
 _Graphs used in the icon are created by <a href="https://www.flaticon.com/free-icons" title="seal icons">Freepik - Flaticon</a>_
-
