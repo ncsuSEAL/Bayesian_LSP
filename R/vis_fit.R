@@ -11,7 +11,11 @@
 #' format or use "yyyy-mm-dd" format string.
 #' @param vi_vec The vegetation index vector.
 #' @param avg_fit The model fit object returned by `FitAvgModel()`.
+#' @param model A string indicating the model name. For now, only support
+#' "dblog7" and "dblog6" for the 7- and 6-parameter double-logistic functions.
+#' 
 #' @return A plot showing the average model fit result.
+#' 
 #' @export
 #' 
 #' @examples 
@@ -21,7 +25,13 @@
 #' PlotAvg(landsatEVI2$date, landsatEVI2$evi2, avg_fit)
 #' }
 #' @import data.table
-PlotAvg <- function(date_vec, vi_vec, avg_fit) {
+PlotAvg <- function(date_vec, vi_vec, avg_fit, model = "dblog7") {
+    if (!model %in% c("dblog7", "dblog6")) {
+        warning("The specified model does not exist, dblog7 will be used.")
+        model <- "dblog7"
+    }
+    mod <- GetModel(model)
+
     # Format data
     avg_dt <- FormatAvgData(date_vec, vi_vec)
 
@@ -37,7 +47,7 @@ PlotAvg <- function(date_vec, vi_vec, avg_fit) {
     phenos <- NULL
     if (!is.null(avg_fit)) {
         pred <- stats::predict(avg_fit, newdata = list(t = full_t))
-        phenos_idx <- GetPhenosIdx(str2expression(model_str),
+        phenos_idx <- GetPhenosIdx(str2expression(mod$model_str),
             params = list(
                 m1 = stats::coef(avg_fit)["m1"],
                 m2 = stats::coef(avg_fit)["m2"],
@@ -61,12 +71,12 @@ PlotAvg <- function(date_vec, vi_vec, avg_fit) {
     graphics::mtext(text = "EVI2", side = 2, line = 2)
 
     graphics::lines(full_date, pred, col = "orange", lwd = 2)
-    graphics::points(full_date[phenos_idx$midgup], pred[phenos_idx$midgup],
-        pch = 21, lwd = 2, cex = 1.5, bg = "red"
-    )
-    graphics::points(full_date[phenos_idx$midgdown], pred[phenos_idx$midgdown],
-        pch = 21, lwd = 2, cex = 1.5, bg = "red"
-    )
+    
+    for (i in 1:length(phenos_idx)) {
+        graphics::points(full_date[phenos_idx[i]], pred[phenos_idx[i]],
+            pch = 21, lwd = 2, cex = 1.5, bg = "red"
+        )
+    }
 }
 
 
@@ -88,7 +98,6 @@ PlotAvg <- function(date_vec, vi_vec, avg_fit) {
 #' }
 #' @import data.table
 PlotBLSP <- function(blsp_fit, if_return_fit = FALSE) {
-    
     if (class(blsp_fit) != "BlspFit") {
         stop("The input should be the output object of `FitBLSP()` function!")
     }
@@ -96,7 +105,7 @@ PlotBLSP <- function(blsp_fit, if_return_fit = FALSE) {
     # Unpack data from the object
     date_vec <- blsp_fit$data$date
     vi_vec <- blsp_fit$data$vi
-    weights_vec <- blsp_fit$weights
+    weights_vec <- blsp_fit$data$weights
     if (is.null(weights_vec)) {
         weights_vec <- rep(1, length(vi_vec))
     }
@@ -106,73 +115,26 @@ PlotBLSP <- function(blsp_fit, if_return_fit = FALSE) {
     disp_cred_int_level <- round(blsp_fit$cred_int_level*100)
     
     #~ Predict fitted value for full dates ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    bf_pred <- NULL
+    bf_pred <- BLSPFitted(blsp_fit, asCI = TRUE)
     years <- sort(unique(lubridate::year(date_vec)))
-    for (i in 1:numYears) {
-        date <- seq(as.Date(paste0(years[i], "-01-01")), 
-            as.Date(paste0(years[i], "-12-31")), by = "day")
-        bf_params <- data.table::data.table(
-            m1 = blsp_fit$params$m1[, i], 
-            m2 = blsp_fit$params$m2[, i], 
-            m3 = blsp_fit$params$m3[, i], 
-            m4 = blsp_fit$params$m4[, i], 
-            m5 = blsp_fit$params$m5[, i], 
-            m6 = blsp_fit$params$m6[, i], 
-            m7 = blsp_fit$params$m7[, i]
-        )
-        phenos_idx <- data.table::data.table(
-            midgup = numeric(nrow(bf_params)), 
-            midgdown = numeric(nrow(bf_params))
-        )
-
-        predCI <- NULL
-        for (j in 1:nrow(bf_params)) { # j = 1
-            # pred based on current parameter samples
-            pred <- eval(str2expression(model_str), envir = list(
-                m1 = as.numeric(bf_params[j, 1]), 
-                m2 = as.numeric(bf_params[j, 2]), 
-                m3 = as.numeric(bf_params[j, 3]), 
-                m4 = as.numeric(bf_params[j, 4]),
-                m5 = as.numeric(bf_params[j, 5]), 
-                m6 = as.numeric(bf_params[j, 6]), 
-                m7 = as.numeric(bf_params[j, 7]),
-                t = 1:length(date)
-            ))
-            predCI <- cbind(predCI, pred)
-        }
-
-        alpha <- (1-blsp_fit$cred_int_level)/2
-        predCI <- t(data.table::data.table(
-            apply(predCI, 1, function(x) {
-                stats::quantile(x, c(alpha, 1-alpha))
-            }
-        )))
-
-        pred <- data.table::data.table(
-            apply(predCI, 1, function(x) stats::quantile(x, 0.5))
-        )
-        cur_year_pred <- cbind(date, pred)
-        bf_pred <- rbind(bf_pred, cbind(cur_year_pred, predCI))
-    }
-    # Make it a data.table
-    bf_pred <- data.table::as.data.table(bf_pred)
-    colnames(bf_pred) <- c("Date", "Fitted", "Fitted_lower", "Fitted_upper")
-    bf_pred$Date <- as.Date(bf_pred$Date, origin = "1970-01-01")
 
 
     # ~ Do the plot ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     plot(bf_pred$Date, bf_pred$Fitted, 
         cex = 0, ylim = c(-0.1, 1), 
-        xlab = "Date", ylab = "EVI2"
+        xlab = "Date", ylab = "EVI2",
+        bty = "L"
     )
     graphics::polygon(c(bf_pred$Date, rev(bf_pred$Date)), 
         c(bf_pred$Fitted_upper, rev(bf_pred$Fitted_lower)),
-        col = Transparent("red", 0.2),
+        col = adjustcolor("red", 0.2),
         border = NA
     )
     graphics::points(date_vec, vi_vec, 
         pch = 16, 
-        col = Transparent(rep("black", length(weights_vec)), weights_vec), 
+        col = sapply(weights_vec, function(i) {
+            adjustcolor("black", weights_vec[i])
+        }),
         cex = 0.5
     )
     graphics::lines(bf_pred$Date, bf_pred$Fitted, 
@@ -180,9 +142,10 @@ PlotBLSP <- function(blsp_fit, if_return_fit = FALSE) {
         col = "red", lwd = 2
     )
 
-    pheno_names <- c("midgup", "midgdown")
+    pheno_names <- colnames(blsp_fit$phenos)[-1]
+    pheno_names <- pheno_names[-grep("_", pheno_names)]
     pheno_colors <- rev(viridis::viridis(9))
-    for (k in 1:length(pheno_names)) { # k = 1
+    for (k in 1:length(pheno_names)) {
         pheno <- pheno_names[k]
         phn_dates <- bf_phenos[!is.na(get(pheno)), ][[pheno]]
         phn_dates <- as.Date(paste0(years, "-01-01")) + unlist(phn_dates)
@@ -191,22 +154,27 @@ PlotBLSP <- function(blsp_fit, if_return_fit = FALSE) {
 
         graphics::points(phn_dates, phn_val, pch = 16, col = pheno_colors[k])
         phn_dates_lower <- as.Date(paste0(years, "-01-01")) + 
-            unlist(bf_phenos[!is.na(get(pheno)), ][[paste0(pheno, "_lower")]])
+            unlist(bf_phenos[!is.na(get(pheno)), ][[paste0(pheno, "_lwr")]])
         phn_dates_upper <- as.Date(paste0(years, "-01-01")) + 
-            unlist(bf_phenos[!is.na(get(pheno)), ][[paste0(pheno, "_upper")]])
+            unlist(bf_phenos[!is.na(get(pheno)), ][[paste0(pheno, "_upr")]])
         graphics::segments(phn_dates_lower, phn_val, phn_dates_upper, phn_val)
     }
     graphics::legend(
         graphics::grconvertX(0.5, "ndc"), graphics::grconvertY(0.95, "ndc"), 
-        xjust = 0.5,
-        ncol = 3, bty = "n", 
-        lty = c(NA, 1, rep(NA, 3), 1), 
-        pch = c(16, NA, 16, 15, 16, NA),
-        col = c("black", "red", pheno_colors[1], 
-            Transparent("red", 0.2), pheno_colors[2], "black"),
-        legend = c("Observations", "Median Fit", "SOS", 
+        xjust = 0.5, bty = "n", 
+        ncol = ifelse(length(pheno_names) == 2, 3, 4), 
+        legend = c("Observations", "Median Fit", 
             paste0(disp_cred_int_level, "% C.I. of fit"), 
-            "EOS", paste0(disp_cred_int_level, "% C.I. of phenometrics")),
+            paste0(disp_cred_int_level, "% C.I. of phenometrics"),
+            pheno_names
+        ),
+        lty = c(NA, 1, NA, 1, 1, rep(NA, length(pheno_names))), 
+        pch = c(16, NA, 15, NA, 16, rep(16, length(pheno_names))),
+        col = c("black", "red", 
+            adjustcolor("red", 0.2),
+            "black",
+            pheno_colors[1:length(pheno_names)]
+        ),
         xpd = NA
     )
     graphics::legend("bottomright", bty = "n", 

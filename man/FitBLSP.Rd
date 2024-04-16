@@ -2,17 +2,19 @@
 % Please edit documentation in R/mod_fit.R
 \name{FitBLSP}
 \alias{FitBLSP}
-\title{Fit a Bayesian mixed hierarchical land surface phenology model.}
+\title{Fit a Bayesian mixed hierarchical land urface phenology model.}
 \usage{
 FitBLSP(
   date_vec,
   vi_vec,
   weights_vec = NULL,
-  initValues = NULL,
-  cred_int_level = 0.9,
-  verbose = FALSE,
+  model = "dblog7",
+  init_values = NULL,
   start_yr = NULL,
-  end_yr = NULL
+  end_yr = NULL,
+  cred_int_level = 0.9,
+  opt = NULL,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -24,9 +26,18 @@ format or use "yyyy-mm-dd" format string.}
 \item{weights_vec}{A numeric vector of same length as vi_vec specifying the
 weights for the supplied observations. Must be between 0 and 1, inclusive.}
 
-\item{initValues}{Initial values for MCMC sampling. By default, it is
+\item{model}{A string indicating the model name. For now, only support
+"dblog7" and "dblog6" for the 7- and 6-parameter double-logistic functions.}
+
+\item{init_values}{Initial values for MCMC sampling. By default, it is
 assgined \code{NULL}. It could also be an object returned from the \code{FitAvgModel()}
 function that fits an averaged model or a numeric vector provided by the user.}
+
+\item{start_yr}{The start year of the result. Default is NULL, which means
+determined by data.}
+
+\item{end_yr}{The end year of the result. Default is NULL, which means
+determined by data.}
 
 \item{cred_int_level}{A scalar value from 0 to 1 (exclusive) that specifies
 the level for equal-tailed credible intervals of the estimated phenometrics.
@@ -34,13 +45,14 @@ The default level is 0.9, generating \verb{90\%} credible intervals. The end
 points of these intervals define the upper and lower bounds for the estimated
 phenometrics.}
 
+\item{opt}{An option list that contains additional configurations. For now,
+only support \code{list(method = "threshold")} to indicate that use the
+threshold-based method to retrive phenometrics instead of the default SOS and
+EOS. The threshold-based method will produce 7 phenometrics including
+Greenup, MidGreenup, Maturity, Peak, Senescence, MidGreendown, and Dormancy
+using VI amplitude thresholds of 15\%, 50\%, 90\%, and 100\%, respectively.}
+
 \item{verbose}{logical. If \code{TRUE}, the progress will be reported.}
-
-\item{start_yr}{The start year of the result. Default is NULL, which means
-determined by data.}
-
-\item{end_yr}{The end year of the result. Default is NULL, which means
-determined by data.}
 }
 \value{
 An object of class \code{BlspFit} will be returned. The object contains the

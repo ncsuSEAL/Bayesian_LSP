@@ -4,13 +4,16 @@
 \alias{FitAvgModel}
 \title{Fit the averaged model and get the model parameters.}
 \usage{
-FitAvgModel(date_vec, vi_vec)
+FitAvgModel(date_vec, vi_vec, model = "dblog7")
 }
 \arguments{
 \item{date_vec}{the date vector, be sure to convert the vector to "Date"
 format or use "yyyy-mm-dd" format string.}
 
 \item{vi_vec}{The vegetation index vector.}
+
+\item{model}{A string indicating the model name. For now, only support
+"dblog7" and "dblog6" for the 7- and 6-parameter double-logistic functions.}
 }
 \value{
 Model parameters to be used as MCMC initial parameters in

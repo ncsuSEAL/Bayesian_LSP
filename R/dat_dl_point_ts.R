@@ -131,12 +131,7 @@ GetEvi2PointTs <- function(pt_coords, focalDates = "1984-01-01/2022-12-31",
             ncores
         )
         cl <- parallel::makeCluster(ncores)
-        calls <- parallel::clusterCall(cl, function() {
-            suppressWarnings({
-                require(terra)
-                require(magrittr)
-            })
-        })
+        calls <- parallel::clusterCall(cl, function() {})
         parallel::clusterExport(cl,
             c("CalEVI2", "pt_coords"),
             envir = environment()

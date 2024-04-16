@@ -40,6 +40,7 @@ sub_dt <- landsatEVI2[lubridate::year(date) %in% 1984:1994, ]
 results <- FitBLSP(
   date_vec = sub_dt$date, 
   vi_vec = sub_dt$evi2, 
+  opt = list(method = "threshold"),
   verbose = TRUE
 )
 ```
@@ -105,7 +106,7 @@ Returning to `FitBLSP()`, the `iniValues` argument can either be a numeric vecto
 results <- FitBLSP(
   date_vec = sub_dt$date, 
   vi_vec = sub_dt$evi2, 
-  initValues = avg_fit,
+  init_values = avg_fit,
   verbose = TRUE
 )
 ```
@@ -182,7 +183,7 @@ avg_fit <- FitAvgModel(
 results <- FitBLSP(
   date_vec = evi2_dt$date,
   vi_vec = evi2_dt$evi2,
-  initValues = avg_fit,
+  init_values = avg_fit,
   verbose = TRUE
 )
 ```
@@ -258,7 +259,7 @@ avg_fit <- FitAvgModel(
 results <- FitBLSP(
   date_vec = single_ts$date,
   vi_vec = single_ts$evi2,
-  initValues = avg_fit,
+  init_values = avg_fit,
   verbose = TRUE
 )
 ```
