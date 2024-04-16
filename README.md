@@ -24,7 +24,7 @@ devtools::install_github("ncsuSEAL/Bayesian_LSP", build_vignettes = TRUE)
 ```
 Afterwards, you can call the package using `library(blsp)`. Run `help(package = "blsp")` to see the vignette and functions available in the package. 
 
-## Note:
+## Note
 We are currently (as of June 2022) improving the computing speed of the BLSP algorithm, thanks to Matt Shisler and Dr. Brian Reich's help. Be sure to watch or star this repo to keep up with our updates.
 
 ## The package functionality 
@@ -36,13 +36,36 @@ The model fit is shown in the below figure:
 
 And, the estimated phenometrics and their 95% credible intervals are stored in a table returned by the `FitBLSP()` function of the `blsp` package:
 
-<img src="img/model_fit_phenos.png" alt="" width="500"/>
+| Year | midgup_lwr | midgup | midgup_upr | midgdown_lwr | midgdown | midgdown_upr |
+| :--: | :--------: | :----: | :--------: | :----------: | :------: | :----------: |
+| 1984 |    130     |  139   |    146     |     277      |   284    |     291      |
+| 1985 |    132     |  138   |    140     |     272      |   281    |     288      |
+| ...  |    ...     |  ...   |    ...     |     ...      |   ...    |     ...      |
+| 2023 |    ...     |  ...   |    ...     |     ...      |   ...    |      ..      |
+
+Starting from v1.5, in addition to `midgup` (SOS) and `midgdown` (EOS), we also support getting more detailed phenometrics using a threshold-based method. The method can be configured when using `FitBLSP(.., opt = list(method = "threshold"))`. The detailed phenometrics and their amplitude threshold are shown in the following table and figure:
+
+| Phenometric  | Threshold               |
+| :----------: | ----------------------- |
+|   Greenup    | 15% amplitude in spring |
+|  MidGreenup  | 50% amplitude in spring |
+|   Maturity   | 90% amplitude in spring |
+|     Peak     | 100% amplitude          |
+|  Senescence  | 95% amplitude in autumn |
+| MidGreendown | 50% amplitude in autumn |
+|   Dormancy   | 15% amplitude in autumn |
+
+![](img/model_fit_more_phenos.png)
+
+Also from v1.5, we support both 6- and 7-parameter double-logistic functions. To specify which function to use, pass a `model` string to the `FitBLSP()` function, e.g.,  `FitBLSP(..., model = "dblog6")`. To use the 6-parameter model, do `model = "dblog6"`; while `model = "dblog7"` will use the 7-parameter model, which is the default value.
 
 For detailed introduction of the package usage, please use `help(package = "blsp")` to see the vignettes. We also provide Google Earth Engine javascript script and Microsoft Planetary Computer R functions to help users get Landsat time series for any latitude and longitude points so that users can try the `blsp` package with minimal effort in preparing data (see the vignettes).
 
 > **Note** 
->
+> 
 > Unlike other land surface phenology products, we don't have QA/QC flags. The reason is, from our current experience, that the quality of the retrieved phenometrics can be indicated from the uncertainty. For example, if the uncertainty for a phenometric is very large, it indicates that the phenometric might be of low quality; otherwise, the pheometirc is trustable. This strategy may be changed based on future experience with the BLSP model, though.
+> 
+> Some data pre-processing such as filling in the extremly low values in the winter period using 2th percentile and removing abnormal low values in the summer period can help fitting the model better. Those abnormal observations should be captured by cloud detection but sometimes it fails. 
 
 # Known limitations
 Here are some limitations users frequently asked, we appreciate the feedback and want to notify future users to be aware of them. 

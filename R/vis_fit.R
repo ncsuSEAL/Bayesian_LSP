@@ -168,7 +168,7 @@ PlotBLSP <- function(blsp_fit, if_return_fit = FALSE) {
             paste0(disp_cred_int_level, "% C.I. of phenometrics"),
             pheno_names
         ),
-        lty = c(NA, 1, NA, 1, 1, rep(NA, length(pheno_names))), 
+        lty = c(NA, 1, NA, 1, NA, rep(NA, length(pheno_names))), 
         pch = c(16, NA, 15, NA, 16, rep(16, length(pheno_names))),
         col = c("black", "red", 
             adjustcolor("red", 0.2),
