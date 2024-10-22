@@ -291,7 +291,7 @@ FitBLSP <- function(date_vec, vi_vec,
                 weights_vec,
                 cred_int_level,
                 mod,
-                method = "default"
+                method = tolower(opt$method)
             )
 
             return(blsp_fit)
