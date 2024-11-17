@@ -51,7 +51,7 @@ Starting from v1.5, in addition to `midgup` (SOS) and `midgdown` (EOS), we also 
 |  MidGreenup  | 50% amplitude in spring |
 |   Maturity   | 90% amplitude in spring |
 |     Peak     | 100% amplitude          |
-|  Senescence  | 95% amplitude in autumn |
+|  Senescence  | 90% amplitude in autumn |
 | MidGreendown | 50% amplitude in autumn |
 |   Dormancy   | 15% amplitude in autumn |
 
