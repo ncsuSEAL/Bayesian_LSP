@@ -279,6 +279,25 @@ CalPhenoParam <- function(
 }
 
 
+#' Find point to line distance
+#' 
+#' @param x1,y1,x2,y2 The coordinates of the two points that define the line.
+#' @param x0,y0 The point coordinates to calculate the distance.
+#'
+#' @return Distance from the point to the line.
+#' @noRd 
+CalPointToLineDistance <- function(x1, y1, x2, y2, x0, y0) {
+    m <- (y2 - y1) / (x2 - x1)
+    A <- - m
+    B <- 1
+    C <- m * x1 - y1
+    
+    distance <- abs(A * x0 + B * y0 + C) / sqrt(A^2 + B^2)
+    
+    return(distance)
+}
+
+
 #' Calculate phenometrics using the threshold-based method
 #'
 #' @param p_li A list containing the model parameters.
@@ -295,8 +314,11 @@ CalPhenoParam <- function(
 #' The default level is 0.9, generating `90%` credible intervals. The end
 #' points of these intervals define the upper and lower bounds for the estimated
 #' phenometrics.
+#' @param greendown_aware Default is `FALSE`. If `TRUE`, Senescence will be 
+#' retrieved as the end of summer greendown date, and MidGreendown as the 
+#' transition point of the first derivative of the autumn EVI2 curve.
 #' 
-#' #' @return An "BlspFit" object filled with retrieved phenology and parameters.
+#' @return An "BlspFit" object filled with retrieved phenology and parameters.
 #' 
 #' @import data.table
 #' @noRd
@@ -304,7 +326,8 @@ CalPhenoThresh <- function(
     p_li, mod,
     years, numYears,
     date_vec, vi_vec, weights_vec,
-    cred_int_level
+    cred_int_level,
+    greendown_aware = FALSE
 ) {
     # Format MCD12Q2-like phenometrics
     blsp_fit <- EmptyBlspOutput(
@@ -332,14 +355,7 @@ CalPhenoThresh <- function(
             # Spring amp
             spring_min <- min(p[1:peakdate])
             spring_amp <- peak - spring_min
-            # Autumn amp
-            autumn_min <- min(p[peakdate:length(p)])
-            autumn_amp <- peak - autumn_min
-
-            if (spring_amp < 0.2 | autumn_amp < 0.2) {
-                return(rep(NA, 7))
-            }
-
+            
             gup <- which(
                 p[1:peakdate] > (spring_amp * 0.15 + min(p[1:peakdate]))
             )[1]
@@ -349,16 +365,60 @@ CalPhenoThresh <- function(
             mat <- which(
                 p[1:peakdate] > (spring_amp * 0.90 + min(p[1:peakdate]))
             )[1]
+            
+            if (isTRUE(greendown_aware)) {
+                # If greendown aware, autumn amp is calculated as the EVI2
+                # between the EVI2 of the end of greendown to the EVI2 of
+                # dormancy
+                
+                # Draw a line between peak and min, find the point w/ the max
+                # distance to the line, which is senescence
+                autumn_p <- p[peakdate:length(p)]
+                autumn_min <- min(autumn_p)
+                autumn_amp <- peak - autumn_min
+                autumn_min_doy <- which(
+                    autumn_p < autumn_amp * 0.1 + autumn_min
+                )[1] + peakdate
+                
+                dis <- sapply(peakdate + seq_along(autumn_p) - 1, function(x0) {
+                    CalPointToLineDistance(
+                        peakdate, peak, 
+                        autumn_min_doy, autumn_min, 
+                        x0, autumn_p[x0 - peakdate + 1]
+                    )
+                })
+                sens <- peakdate + which(diff(sign(diff(dis))) == -2) + 2
 
-            sens <- which(
-                p[peakdate:length(p)] < autumn_amp * 0.90 + autumn_min
-            )[1] + peakdate
-            midgdown <- which(
-                p[peakdate:length(p)] < autumn_amp * 0.5 + autumn_min
-            )[1] + peakdate
-            dorm <- which(
-                p[peakdate:length(p)] < autumn_amp * 0.15 + autumn_min
-            )[1] + peakdate
+                # Now, the autumn amplitude is from sens to min
+                autumn_amp <- p[sens] - autumn_min
+                
+                # MidGreendown is from the first derivative
+                midgdown <- which.min(
+                    diff(autumn_p[(sens - peakdate + 1):length(autumn_p)])
+                ) + sens
+                dorm <- which(
+                    autumn_p[(sens - peakdate + 1):length(autumn_p)] <
+                        autumn_amp * 0.15 + autumn_min
+                )[1] + sens
+            } else {
+                # Autumn amp
+                autumn_min <- min(p[peakdate:length(p)])
+                autumn_amp <- peak - autumn_min
+
+                if (spring_amp < 0.2 | autumn_amp < 0.2) {
+                    return(rep(NA, 7))
+                }
+
+                sens <- which(
+                    p[peakdate:length(p)] < autumn_amp * 0.90 + autumn_min
+                )[1] + peakdate
+                midgdown <- which(
+                    p[peakdate:length(p)] < autumn_amp * 0.5 + autumn_min
+                )[1] + peakdate
+                dorm <- which(
+                    p[peakdate:length(p)] < autumn_amp * 0.15 + autumn_min
+                )[1] + peakdate
+            }
 
             return(c(gup, midgup, mat, peakdate, sens, midgdown, dorm))
         })

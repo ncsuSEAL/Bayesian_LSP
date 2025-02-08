@@ -13,9 +13,6 @@ pkgs <- c(
           "miniUI",
           "pkgdown",
           "devtools",
-          "geojsonio",
-          "geojsonR",
-          "getPass",
           "minpack.lm",
           "rstac",
           "terra"

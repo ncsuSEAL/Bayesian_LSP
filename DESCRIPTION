@@ -17,9 +17,6 @@ RoxygenNote: 7.3.1
 Imports:
     coda,
     data.table,
-    geojsonio,
-    geojsonR,
-    getPass,
     httr,
     jsonlite,
     lubridate,

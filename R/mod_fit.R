@@ -101,31 +101,34 @@ BLSPFitted <- function(blsp_fit, asCI = FALSE) {
 #' to the supplied data (can be sparse), and returns phenometrics for the 
 #' entire time frame. For further explanation, please see the vignette.
 #' 
-#' @param date_vec The date vector, be sure to convert the vector to "Date" 
-#' format or use "yyyy-mm-dd" format string.
-#' @param vi_vec The vegetation index vector.
+#' @param date_vec The date vector, be sure to convert the vector to "Date"
+#' format or use "yyyy-mm-dd" format string. 
+#' @param vi_vec The vegetation index vector. 
 #' @param weights_vec A numeric vector of same length as vi_vec specifying the 
-#' weights for the supplied observations. Must be between 0 and 1, inclusive.
-#' @param model A string indicating the model name. For now, only support
-#' "dblog7" and "dblog6" for the 7- and 6-parameter double-logistic functions.
+#' weights for the supplied observations. Must be between 0 and 1, inclusive. 
+#' @param model A string indicating the model name. For now, only support 
+#' "dblog7" and "dblog6" for the 7- and 6-parameter double-logistic functions. 
 #' @param init_values Initial values for MCMC sampling. By default, it is 
 #' assgined `NULL`. It could also be an object returned from the `FitAvgModel()` 
 #' function that fits an averaged model or a numeric vector provided by the user. 
-#' @param start_yr The start year of the result. Default is NULL, which means
-#' determined by data.
-#' @param end_yr The end year of the result. Default is NULL, which means
-#' determined by data.
-#' @param cred_int_level A scalar value from 0 to 1 (exclusive) that specifies
-#' the level for equal-tailed credible intervals of the estimated phenometrics.
-#' The default level is 0.9, generating `90%` credible intervals. The end
-#' points of these intervals define the upper and lower bounds for the estimated
-#' phenometrics.
-#' @param opt An option list that contains additional configurations. For now,
-#' only support `list(method = "threshold")` to indicate that use the
-#' threshold-based method to retrive phenometrics instead of the default SOS and
-#' EOS. The threshold-based method will produce 7 phenometrics including
+#' @param start_yr The start year of the result. Default is NULL, which means 
+#' determined by data. 
+#' @param end_yr The end year of the result. Default is NULL, which means 
+#' determined by data. 
+#' @param cred_int_level A scalar value from 0 to 1 (exclusive) that specifies 
+#' the level for equal-tailed credible intervals of the estimated phenometrics. 
+#' The default level is 0.9, generating `90%` credible intervals. The end points 
+#' of these intervals define the upper and lower bounds for the estimated
+#' phenometrics. 
+#' @param opt An option list that contains additional configurations. It 
+#' supports `list(method = "threshold")` to indicate that use the 
+#' threshold-based method to retrive phenometrics instead of the default SOS
+#' and EOS. The threshold-based method will produce 7 phenometrics including
 #' Greenup, MidGreenup, Maturity, Peak, Senescence, MidGreendown, and Dormancy
-#' using VI amplitude thresholds of 15%, 50%, 90%, and 100%, respectively. 
+#' using VI amplitude thresholds of 15%, 50%, 90%, and 100%, respectively. If
+#' including `greendown_aware = TRUE`, Senescence will be retrieved as the end
+#' of summer greendown date, and MidGreendown as the transition point of the
+#' first derivative of the autumn EVI2 curve.
 #' @param verbose logical. If `TRUE`, the progress will be reported.
 #' 
 #' @return An object of class `BlspFit` will be returned. The object contains the
@@ -263,7 +266,8 @@ FitBLSP <- function(date_vec, vi_vec,
                     p_li, mod,
                     years, numYears, 
                     date_vec, vi_vec, weights_vec, 
-                    cred_int_level
+                    cred_int_level,
+                    greendown_aware = opt$greendown_aware
                 )
             } else {
                 blsp_fit <- CalPhenoParam(
