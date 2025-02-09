@@ -1,7 +1,7 @@
 jags
 gdal-bin
+build-essential 
 libgdal-dev
-libcurl4-openssl-dev
 libssl-dev
 libxml2-dev
 libudunits2-dev
@@ -12,5 +12,7 @@ libgeos-dev
 libgdal-dev
 libv8-dev
 
+libmagick++-dev
+libfontconfig1-dev
 libharfbuzz-dev
 libfribidi-dev

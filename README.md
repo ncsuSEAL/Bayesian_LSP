@@ -59,6 +59,8 @@ Starting from v1.5, in addition to `midgup` (SOS) and `midgdown` (EOS), we also 
 
 Also from v1.5, we support both 6- and 7-parameter double-logistic functions. To specify which function to use, pass a `model` string to the `FitBLSP()` function, e.g.,  `FitBLSP(..., model = "dblog6")`. To use the 6-parameter model, do `model = "dblog6"`; while `model = "dblog7"` will use the 7-parameter model, which is the default value.
 
+Starting from v1.7, we added a `greendown_aware` parameter to account for the summer EVI2 greendown phenomenon when using the threshold-based phenometrics. Specifically, when the greendown phenomenon is substantial (e.g., in PhenoCam data), the `Senescence` metric, which is defined as 90% amplitude in autumn, can be biased early. However, this EVI2 decrease is not necessarily `Senescence` (the exact mechanisms that induced this summer greendown are still unclear. Some previous studies have attributed it to shadow and/or leaf angle). So, by using `FitBLSP(.., opt = list(method = "threshold", greendown_aware = TRUE))`, the `Senescence` metric will be retrieved as the end date of summer greendown (or, the edge of the curve), and the `MidGreendown` will be the date with the mininum first derivative of the autumn EVI2 curve after `Senescence`. 
+
 For detailed introduction of the package usage, please use `help(package = "blsp")` to see the vignettes. We also provide Google Earth Engine javascript script and Microsoft Planetary Computer R functions to help users get Landsat time series for any latitude and longitude points so that users can try the `blsp` package with minimal effort in preparing data (see the vignettes).
 
 > **Note** 
